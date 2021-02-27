@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap
+	PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
+	"http://ibatis.apache.org/dtd/sql-map-2.dtd">
+	
+	<sqlMap namespace="member">
+	
+		<select id="selectById" resultClass="String" parameterClass="String">
+		
+			select mem_id from member where mem_id = #mem_id#
+		
+		</select>
+	
+		<insert id="insertMember" parameterClass="MemberVO">
+		<!-- insert는 resultClass 가 없음  -->
+		 insert into member(
+	      mem_id,
+	      mem_pass,
+	      mem_name,
+	      mem_bir,
+	      mem_zip,
+	      mem_add1,
+	      mem_add2,
+	      mem_hp,
+	      mem_mail
+    )values (
+     	  #mem_id#,
+          #mem_pass#,
+	      #mem_name#,
+	      #mem_bir#,
+	      #mem_zip#,
+	      #mem_add1#,
+	      #mem_add2#,
+	      #mem_hp#,
+	      #mem_mail#
+    )  
+		<!--values 는 VO에서 가져오는것. VO에 소문자로 작성되어있기떄문에 여기도 소문자로 작성해줘야함.  -->
+		<!-- insert 가 끝나기 전에 selectkey 설정해줘야함. insert 의 결과값에 대한 설정 필요.   -->
+		
+		<selectKey keyProperty="mem_id" resultClass="String">
+		
+		select mem_id from member where mem_id = #mem_id#
+		
+		</selectKey>
+				
+		</insert>
+		
+		<select id="selectByDong" parameterClass="String" resultClass="zipVO">
+		
+			select * from ziptb where dong like #data#||'%'
+		
+		</select>
+		
+		</sqlMap>
+	
+	

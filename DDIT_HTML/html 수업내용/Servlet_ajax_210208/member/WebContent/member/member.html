@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="kr">
+<head>
+  <title>Bootstrap Example</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+  <script src="../js/jquery.serializejson.min.js"></script>
+  
+<style>
+	.ziptr:hover{
+		background: crimson;
+	}
+</style>
+
+<script >
+$(function(){
+	$('#idbtn').on('click',function() {
+		idvalue = $('#id').val().trim();
+		
+		if(idvalue.length < 1){
+			alert("id를 입력하세요.");
+			return false;
+		}
+		$.ajax({
+			url : '/member/ID.do',  /* member : Context Root , ID.do : Servlet name */
+			type : 'post',
+			data : {"id" : idvalue},
+			success : function(res){
+				$('#idspan').html(res.sw).css('color','red')
+				
+			},
+			error : function(xhr) {
+				alert("status : " + xhr.status);
+				
+			},
+			dataType : 'json'
+		
+		
+		})
+		
+	})
+		// 우편번호 검색 -window   	// DOM 객체를 window 객체에 올리는 것. DOM을 포함하는 객체
+		$('#wzipbtn').on('click',function(){
+				// 새로운 창 열기
+				//window.open("zipsearch.html","_self","width=500 height=400") 		// _self : 기존 창에 열린다.  
+				 window.open("zipsearch.html","_blank","width=700 height=500") 		// _blank : 새로운창에 열린다.
+		
+	})
+		// 우편번호 검색 - modal	- 별도의 이벤트 핸들러 없음.
+	//<button class="btn btn-success btn-sm" data-toggle="modal" data-target="#myModal" id="mzipbtn" type="button">search zipcode(model)</button>
+	
+	
+	// 우편번호 modal에서 동 입력 후 확인 버튼 클릭 이벤트
+	$('#dongbtn').on('click',function(){
+		
+		//입력값 가져오기
+		dongvalue = $('#dong').val().trim();		// trim() 양 옆 공백 제거
+	
+		// 서버로 전송(요청 및 응답)
+		$.ajax({
+			url : '/member/DongSearch.do',		// context root : /member/	context root 를 쓸땐 앞에 슬래시 ( / ) 붙여줘야함. 
+			data : {"dong" : dongvalue },		// 공백 없이
+			type : 'post',
+			success : function(res){	//data 받을때 success 꼭 적을 필요는 없으나, 확인 차원으로 적어두자.
+				
+				code = "<table class='table table-bordered' border ='1'>";
+				code += "<tr><td>우편번호</td>";
+				code += "<td>주소</td>";
+				code += "<td>번지</td><tr>";
+				
+				$.each(res,function(i,v){	// v.code 는 jsp의 값과 일치해야한다.
+					code += "<tr class='ziptr'><td>"+ v.code+ "</td>";
+					code += "<td>" + v.addr + "</td>";
+					code += "<td>" + v.bunji + "</td><tr>";
+					
+				})
+				code += "</table>"
+				$('#result1').html(code);
+			},
+			error : function(xhr){	// 필수는 아니지만 확인 차원으로 적어두자.
+				alert("status : " + xhr.status)	//오류 메시지  200 : 200 은 응답 성공이지만  안뜨는경우. 응답은 성공했으나 형식이 잘못 되었을때.(따음표, 컴마 ), 403 : 요청이 잘 못 됬을 경우
+				
+			},
+			dataType : 'json'
+		})
+		
+	
+	})
+	
+	// modal 결과에서 원하는 행(주소)를 선택했을때 이벤트
+	// 동적으로 새롭게 생성된 요소
+	$('#result1').on('click','.ziptr',function(){
+		
+		// 선택
+		zipcode = $('td:eq(0)', this).text();
+		addr = $('td:eq(1)',this).text();
+		
+		// 폼에 출력
+		$('#zip').val(zipcode);
+		$('#add1').val(addr);
+		
+		// modal 창 닫기
+		$('#myModal').modal('hide');
+		// modal 창 내용 지우기		remove() : 완전 지움. 다음에 사용 불가  empty() : 안에 있는 내용만 지움
+		$('#dong').val("");
+		$('#result1').empty();
+		
+	})
+	
+	
+
+	// 제출 버튼 클릭 이벤트
+	//$('button[type=submit]').on('click',function(){  })
+	//$('button:submit').on('click',function(){
+	
+		$('#ff').on('submit',function(){
+			//submit의 고유 기능을 방지한다.
+			event.preventDefault();
+			/* 		
+			// 입력한 모든 값 (9개) 가져오기  input type-val()
+			idvalue = $('#id').val().trim();
+			namevalue = $('#name').val().trim();
+			birvalue = $('#bir').val().trim();
+			emailvalue = $('#email').val().trim();
+			pwdvalue = $('#pwd').val().trim();
+			hpvalue = $('#hp').val().trim();
+			zipvalue = $('#zip').val().trim();
+			add1value = $('#add1').val().trim();
+			add2value = $('#add2').val().trim();
+			
+			datas = {"mem_id" :idvalue, "mem_name" :namevalue,
+					"mem_pass" : pwdvalue, "mem_bir" : birvalue,
+					"mem_zip" : zipvalue, "mem_add1" : add1value,
+					"mem_add2" : add2value, "mem_hp" : hpvalue,
+					"mem_mail" : emailvalue
+					
+			}
+		console.log(datas)
+		
+		datas = "mem_id=" + idvalue + "mem_name=" + namevalue +
+		"mem_pass=" + pwdvalue + "mem_bir=" + birvalue +
+		"mem_zip=" + zipvalue + "mem_add1=" + add1value +
+		"mem_add2=" + add2value + "mem_hp=" + hpvalue +
+		"mem_mail=" + emailvalue
+		
+		console.log(datas); */
+	
+		
+		console.log($('#ff').serialize());
+		console.log($('#ff').serializeArray());
+		// serializeJSON 은 lib 가 있어야 만들 수 있다.
+		console.log($('#ff').serializeJSON());
+			
+		 	$.ajax({
+				url : '/member/Insert.do',
+				method : 'post',
+				data : $('#ff').serializeJSON(),
+				success : function(res) {
+					$('#submitspan').html(res.sw).css('color','red')
+				
+				},
+				error : function(xhr){
+					alert("status : " + xhr.status);	
+				
+				},
+				dataType : 'json'
+			
+			}) 
+						
+		})
+			
+		
+	})
+	
+
+
+</script>
+
+
+
+</head>
+<body>
+
+<div class="container">
+  <h4>회원가입</h4>
+  <form class="form-horizontal" id="ff">
+    <div class="form-group">
+      <label class="control-label col-sm-2" for="id">ID:</label>
+      <div class="col-sm-3">
+        <input type="text" class="form-control" id="id" placeholder="Enter id" name="mem_id">
+     </div>
+             <!-- input 의  name 은 DB와 VO 의 이름과 같아야 한다. -->
+     <button class="btn btn-success btn-sm" id="idbtn" type="button">Check ID</button>
+      <span id="idspan"></span>
+        </div> 
+    <div class="form-group">
+      <label class="control-label col-sm-2" for="name">Name:</label>
+      <div class="col-sm-3">          
+        <input type="text" class="form-control" id="name" placeholder="Enter name" name="mem_name">
+      </div>
+    </div>
+            
+   
+        <div class="form-group">
+      <label class="control-label col-sm-2" for="bir">Birth:</label>
+      <div class="col-sm-3">          
+        <input type="date" class="form-control" id="bir" placeholder="Enter bir" name="mem_bir">
+      </div>
+    </div>
+    
+    <div class="form-group">
+      <label class="control-label col-sm-2" for="email">Email:</label>
+      <div class="col-sm-3">          
+        <input type="email" class="form-control" id="email" placeholder="Enter email" name="mem_mail">
+      </div>
+    </div>
+    
+    <div class="form-group">
+      <label class="control-label col-sm-2" for="pwd">Password:</label>
+      <div class="col-sm-3">          
+        <input type="password" class="form-control" id="pwd" placeholder="Enter password" name="mem_pass">
+    </div>
+       </div>
+       
+       <div class="form-group">
+      <label class="control-label col-sm-2" for="hp">Tel:</label>
+      <div class="col-sm-3">          
+        <input type="text" class="form-control" id="hp" placeholder="Enter tel" name="mem_hp">
+      </div>
+    </div>
+       
+    <div class="form-group">
+      <label class="control-label col-sm-2" for="zip">Zip:</label>
+      <div class="col-sm-3">          
+        <input type="text" class="form-control" id="zip" placeholder="Enter zip" name="mem_zip">
+      </div>
+      <button class="btn btn-success btn-sm" id="wzipbtn" type="button">search zipcode(window)</button>
+       <button class="btn btn-success btn-sm" data-toggle="modal" data-target="#myModal" id="mzipbtn" type="button">search zipcode(model)</button>
+      
+   </div>
+    
+    
+    
+    
+      <div class="form-group">
+      <label class="control-label col-sm-2" for="add1">addr1:</label>
+      <div class="col-sm-5">          
+        <input type="text" class="form-control" id="add1" placeholder="Enter add1" name="mem_add1">
+      </div>
+    </div>
+    
+    
+      <div class="form-group">
+      <label class="control-label col-sm-2" for="add2">addr2:</label>
+      <div class="col-sm-5">          
+        <input type="text" class="form-control" id="add2" placeholder="Enter add2" name="mem_add2">
+      </div>
+    </div>
+    
+      
+  
+    <div class="form-group">        
+      <div class="col-sm-offset-2 col-sm-3">
+        <div class="checkbox">
+          <label><input type="checkbox" name="remember"> Remember me</label>
+        </div>
+      </div>
+      
+      
+ </div>
+    <div class="form-group">        
+      <div class="col-sm-offset-2 col-sm-3">
+        <button type="submit" class="btn btn-primary btn-lg">Submit</button>
+      	 <span id="submitspan"></span>
+      </div>
+    </div>
+  </form>
+</div>
+
+
+ <!-- Modal -->
+  <div class="modal fade" id="myModal" role="dialog">
+    <div class="modal-dialog">
+    
+      <!-- Modal content-->
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h4 class="modal-title">Search zipcode(Modal)</h4>
+        </div>
+        <div class="modal-body">
+        
+        	<input type="text" id="dong">
+		   	<input type="button" id="dongbtn" value="확인">
+			<div id="result1"></div>
+         
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+      
+    </div>
+  </div>
+  
+  
+
+
+</body>
+</html>

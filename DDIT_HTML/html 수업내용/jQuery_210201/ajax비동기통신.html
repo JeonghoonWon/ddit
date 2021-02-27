@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<link rel = "stylesheet" href = "../css/public.css">
+
+<style>
+</style>
+
+<script>
+$(function(){
+	$('#ajax').on('click',function(){
+		
+		xhr = new XMLHttpRequest();
+		
+		//입력한 모든 값을 가져온다.
+		idval = $('#id').val().trim();
+		passval = $('#password').val().trim();
+		telval = $('#tel').val().trim();
+		nameval = $('#name').val().trim();
+		
+		data = "id=" + idval + "&name=" + nameval +
+				"&tel" + telval + "&password" + passval
+		
+		
+		//요청
+		xhr.open("post", "test.jsp",true)
+		xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded")
+		xhr.send(data)
+		
+		//응답
+		xhr.onreadystatechange = function(){
+			if(this.readyState == 4 && this.status == 200) {
+				//응답
+				
+			}
+			
+		}
+		
+	})
+	
+})
+</script>
+
+<title>Insert title here</title>
+</head>
+<body>
+
+<div class="box">
+	<h3>동기 방식</h3>
+	요청과 응답이 1:1 로 이루어진다.<br>
+	요청 후 응답이 올 떄까지 계속 기다린다.<br>
+	응답은 새로운 페이지로 이루어진다.<br>
+	
+
+		<br><br> 
+		
+		<form action="test.jsp" method="post">
+		
+		아이디<input type="text" id="id" name = "id"><br>
+		이름<input type="text" id="name" name = "name"><br>
+		비밀번호<input type="password" id="password" name = "password"><br>
+		전화번호<input type="text" id="tel" name = "tel"><br>
+			<input type = "button" value = "확인">	
+		</form>
+		
+		<div id="result1"></div>
+</div>
+
+<div class="box">
+	<h3>비동기 방식</h3>
+	요청과 응답이 1:1 로 이루어지지 않을 수 있다..<br>
+	요청 후 응답이오지 않더라도 계속 기다리징낳고 다른 요청을 할 수 있다.<br>
+	응답은 여러부분의 영역을 update해서 이루어진다.<br>
+								
+	<br><br> 
+		
+		<form action="test.jsp" method="post">
+		
+		아이디<input type="text" id="id" name = "id"><br>
+		이름<input type="text" id="name" name = "name"><br>
+		비밀번호<input type="password" id="password" name = "password"><br>
+		전화번호<input type="text" id="tel" name = "tel"><br>
+			<input id="ajax" type = "button" value = "확인">	
+		</form>
+		
+		<div id="result2"></div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<link rel = "stylesheet" href = "../css/public.css">
+<script src ="../js/jquery-3.5.1.min.js"></script>
+
+<style>
+</style>
+
+<script>
+$(function(){
+	$('input').on('click',function(){
+		
+		$.ajax({
+			url : '../0202/member.jsp',
+			type : 'get',
+			success : function(res) {
+				
+				code = "<table border='1'>";
+				code += "<tr><td>아이디</td><td>이름</td><td>전화번호</td><td>이메일</td></tr>";
+				
+				$.each(res,function(i,v){
+					code += "<tr><td>"+res[i].id+"</td><td>"+v.name+"</td><td>"+v.hp+"</td><td>"+v.mail+"</td></tr>";
+				})
+				code += "</table>";
+				
+				$('#result1').html(code);
+				
+			},
+			error : function(xhr){
+				alert("상태: " + xhr.status)
+			},
+			dataType : 'json'
+		
+		})
+	})
+})
+</script>
+
+<title>Insert title here</title>
+</head>
+<body>
+
+<div class="box">
+		<br><br> 
+		<input type="button" value="확인">
+		<div id="result1"></div>
+</div>
+
+</body>
+</html>

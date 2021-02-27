@@ -1,0 +1,39 @@
+class A{  }
+
+class B{  }
+
+class C{  }
+
+class D{
+   A a;
+   B b;
+
+   D(){
+      b = new B();
+   }
+
+   D(A a){
+      this.a = a;
+   }
+
+   setA(A a){
+      this.a = a; 
+   }
+
+   method(C c){
+     //C c = new C();
+     c = new C();
+   }
+
+}
+
+
+class E{
+   main(){
+      D d = new D();
+      A a = new A();
+      d.setA(a);
+   }
+}
+
+

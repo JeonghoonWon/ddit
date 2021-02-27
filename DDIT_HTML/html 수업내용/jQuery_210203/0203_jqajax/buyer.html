@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<link rel = "stylesheet" href = "../css/public.css">
+<script src ="../js/jquery-3.5.1.min.js"></script>
+
+<style>
+td{
+	height : auto;
+	padding : 10px;
+	text-align : center;
+}
+#names{
+	width : 200px;
+}
+#details{
+	width : 400px;
+}
+
+
+</style>
+
+<script>
+$(function() {
+	$('input').on('click',function() {
+		
+		$.ajax({
+			url : 'buyerNames.jsp',
+			type : 'get',
+			success : function(res){
+				
+				code = "";
+				$.each(res,function(i,v){
+					code += "<p id='" + v.id + "'>" +v.name+ "</p>" 
+					
+				})
+				$('#names').html(code);
+			},
+			error : function(xhr){
+				alert("상태 : " + xhr.status)
+			},
+			dataType : 'json'
+		})
+		
+	})
+	
+	/* $('p').on('click',function() {
+		alert("이벤트"); */
+	/* 	$('#names').on('click','p',function() {
+			
+			idvalue = $(this).attr('id');
+			
+			$.ajax({
+				url : 'buyerDetails.jsp',
+				type : 'post',
+				data : {"id" : idvalue},
+				success : function(res) {
+					
+					code = "<table>";
+					code += "<tr><td>BUYER_ID</td>";
+					code += "<td>" + res.id +"</td></tr>";
+					
+					code += "<tr><td>BUYER_NAME</td>";
+					code += "<td>" + res.name +"</td></tr>";
+					
+					code += "<tr><td>BUYER_LGU</td>";
+					code += "<td>" + res.lgu +"</td></tr>";
+					
+					code += "<tr><td>BUYER_MAIL</td>";
+					code += "<td>" + res.mail +"</td></tr>";
+					
+					code += "<tr><td>BUYER_BANK</td>";
+					code += "<td>" + res.bank +"</td></tr>";
+					
+					code += "<tr><td>BUYER_BANKNAME</td>";
+					code += "<td>" + res.bankname +"</td></tr>";
+					
+					code += "<tr><td>BUYER_BANKNO</td>";
+					code += "<td>" + res.bankno +"</td></tr>";
+					
+					code += "</table>";
+					
+					$('#details').html(code);			
+				
+				},
+				error : function(xhr){
+					alert("상태 : " + xhr.status)
+				},
+				dataType : 'json'	//html. text 
+				
+			})
+			
+		
+	})
+	
+	 */
+	 
+//////////////////////////////////////////////////////////////////
+	$('#names').on('click','p',function() {
+			
+			idvalue = $(this).attr('id');
+			
+			$.ajax({
+				url : 'details.jsp',
+				type : 'post',
+				data : {"id" : idvalue},
+				success : function(res) {
+					$('#details').html(res);
+					
+				},
+				error : function(xhr){
+					alert("status : " + xhr.status)
+				},
+				dataType : 'html'
+				
+			})
+      })
+
+})
+</script>
+
+<title>Insert title here</title>
+</head>
+<body>
+<pre>
+bind : body 요소에 미리 만들어둔 요소에 이벤트를 적용 . 지금은 on 으로 사용 <br>
+delegate : 실행 후  새롭게 생성된 새로운 요소에도 기존의 요소과 같은 이벤트 핸들러를 실행한다. <br>
+</pre>
+
+
+<div class="box">
+		<br><br> 
+		<input type="button" value="확인">
+		<div id="result1">
+			<table border ="1">
+				<tr>
+				<td>거래처이름</td>
+				<td>거래처 상세정보</td>
+				</tr>
+				
+				<tr>
+				<td id="names">
+					<!-- <p id='P10101' 삼성컴퓨터></p>  -->
+				</td>
+				<td id="details"></td>
+				</tr>
+				
+			</table>
+		
+		</div>
+</div>
+
+</body>
+</html>

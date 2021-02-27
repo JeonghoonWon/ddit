@@ -1,0 +1,13 @@
+drop table cartlist;
+drop table dadd; 
+drop table member;
+drop table orders;
+drop table pay;
+drop table prod;
+drop table qna;
+drop table supv;
+drop table board;
+drop table cart;
+drop table cart_prod;
+drop table pay_method;
+SELECT NVL(MAX(BOARD_NO), 0) + 1 AS BOARD_NO FROM BOARD;

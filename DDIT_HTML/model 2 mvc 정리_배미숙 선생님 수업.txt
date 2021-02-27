@@ -1,0 +1,40 @@
+model 2 mvc
+mvc 
+model - controller 와 view 사이에 전달되는
+	데이터 
+	좁은 의미로는 VO 만 들어가지만 ( ProdVO, MemberVO, LprodVO )
+	넓은 의미로 확장 시켰을 땐  Service, Dao 도 포함된다.
+
+view - jsp ( 응답 결과를 생성하는 페이지)
+controller - 클라이언트 요청을 최초로 받는다.
+	    java(Servlet) 파일로 만든다.
+
+Servlet
+- 웹으로 실행하는 java 파일
+- jsp 의 전 버전
+
+Connection con = DriverManager.getConnection(url, user, pas
+
+
+
+요청페이지(html, jsp)
+
+순서	
+-> Servlet  - 최초요청을 받아서 전송데이터를 가져오고 CRUD 처리를  준비한다. 
+	  - 일반 단순한 계산 업무 준비를 한다.
+	  - service객체를 생성	
+	  - Service 메소드 호출
+
+-> Service - Servlet과 Dao의 중간 역할. Service 를 거쳐서 간다. 
+	  - 일반 단순한 계산 업무를 처리
+	  - Dao의 객체를 생성
+	  - Dao의 메소드 호출
+
+-> Dao (SqlMapClient객체를 이용해서 mapper(member.xml , prod.xml )에 접근해 sql문 실행한다.) 
+
+-> view 페이지
+	-Servlet 으로 돌악온 최종결과값을 view 페이지로 보내기
+	redirect / 
+	forward (Servlet 의 request 를 jsp 와 공유 한다.)
+
+응답페이지(jsp)

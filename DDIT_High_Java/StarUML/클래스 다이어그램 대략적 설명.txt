@@ -1,0 +1,47 @@
+class A {   }
+
+class B {   }
+
+class C {   }
+
+class D {   
+     A a;
+     B b;		// D와 A , D와 B 의 관계는 association D에서 A로 화살표 
+	
+
+      D(  ){
+	b = new B(  ); 	// D 생성자 안에서 B 객체를 생성 
+			// D가 사라지면 B 도 사라지기 때문에 
+			// Association 에서의 Composition
+       }
+
+        D (A a) {
+	this.a = a;
+}
+	
+	set A (A a) {
+		this.a = a;
+	}	// 외부에서 A를 가져온 경우 aggregation	
+
+	method() {
+	      C  c = new C( );  	D와 C는 Dependency 관계.  
+	}
+	
+	method(C c) {
+	       c = new C( );  	매개변수도 지역변수와 똑같이 
+				D와 C는 Dependency 관계.  
+	}
+
+}
+
+class E {
+    main() {
+	D  d = new D( );
+	A  a = new A( );	// 객체가 생성이 되어 사라지는 과정을 라이프사이클이라고하는데
+			// 라이프 사이클이 달라지는 경우를 Association에서의 aggregation 이라고 한다.
+    	d.setA(a)		// 참조값을 사용하는 경우 aggregation
+}
+
+}
+
+구체적으로 사용하는 곳을 mian class 이라 한다면

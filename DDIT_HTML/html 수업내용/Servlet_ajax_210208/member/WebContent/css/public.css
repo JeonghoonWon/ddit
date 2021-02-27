@@ -1,0 +1,39 @@
+@CHARSET "UTF-8";
+pre{
+	background-color : pink;
+	font-size : 1.2em;
+	white-space :pre-line;   /* 공백은 그대로 주고 글자는 짜른다.  */
+
+
+/*
+	pre : 공백은 그래도 줄바꿈이 되지 않는다.
+	pre-wrap : 공백은 그대로 줄바꿈 된다.
+	pre-line : 공백을 여러개 줘도 공백은 하나만 표시 줄바꿈된다.
+	nowrap : 공백을 여러개 줘도 공백은 하나만 표시되고 줄바꿈 되지 않는다.
+
+*/
+}
+div.box{
+	width : 100%;
+	height : auto;
+	margin : 10px;
+	padding : 10px;
+	border : 1px solid orange;
+	background: #faf5f1;
+}
+.box input[type=button]{
+	width : 90px;
+	height : 40px;
+	background: blue;
+	color : white;
+	padding : 5px;
+	border-radious : 50px;
+}
+.box div{
+	width : 80%;
+	height : auto;
+	padding : 10px;
+	border : 1px dotted black;
+	margin : 20px;
+	
+}

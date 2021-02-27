@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<link rel = "stylesheet" href = "../css/public.css">
+<script src ="../js/jquery-3.5.1.min.js"></script>
+<style>
+img {
+		width : 250px;
+		height : 250px;
+}
+
+ .box input[type=button]{
+		width : 150px;
+		
+</style>
+
+<script>
+$(function(){
+	$('#show').on('click',function(){
+		$('img').show(2000,'linear',function(){
+			alert("심슨나옴")
+		});
+		
+	})
+	$('#hide').on('click',function(){
+		$('img').hide("slow");
+	})
+	$('#toggle').on('click',function(){
+		$('img').toggle(500);
+	})
+	
+	$('#slideUp').on('click',function(){
+		$('img').slideUp(2000,'linear');
+		
+	})
+	$('#slideDown').on('click',function(){
+		$('img').slideDown("slow",function(){
+			alert("심슨나옴")
+		});
+	})
+	$('#slideToggle').on('click',function(){
+		$('img').slideToggle(500);
+	})
+	$('#fadeIn').on('click',function(){
+		$('img').fadeIn(2000,'linear',function(){
+			alert("심슨나옴")
+		});
+		
+	})
+	$('#fadeOut').on('click',function(){
+		$('img').fadeOut("slow");
+	})
+	$('#fadeTo').on('click',function(){
+		$('img').fadeTo(500,0.5);
+	})
+	$('#fadeToggle').on('click',function(){
+		$('img').fadeToggle(500);
+	})
+	
+
+})
+</script>
+
+<title>Insert title here</title>
+</head>
+<body>
+
+<div class="box">
+		<br><br> 
+		<input id="show" type="button" value="show">
+		<input id="hide" type="button" value="hide">
+		<input id="toggle" type="button" value="toggle">
+		<input id="slideUp" type="button" value="slideUp">
+		<input id="slideDown" type="button" value="slideDown">
+		<input id="slideToggle" type="button" value="slideToggle">
+		<input id="fadeIn" type="button" value="fadeIn">
+		<input id="fadeOut" type="button" value="fadeOut">
+		<input id="fadeTo" type="button" value="fadeTo">
+		<input id="fadeToggle" type="button" value="fadeToggle">
+								
+		<div id="result1">
+		
+		<img src ="../images/Simpsons1.jpg" alt ="심슨"></div>
+		
+</div>
+
+</body>
+</html>

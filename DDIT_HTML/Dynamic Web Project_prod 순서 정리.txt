@@ -1,0 +1,182 @@
+Servlet(서블릿)
+자바 서블릿(Java Servlet)은 자바를 사용하여 웹페이지를 동적으로 생성하는 
+서버측 프로그램 혹은 그 사양을 말하며, 흔히 "서블릿"이라 불린다. 
+자바 서블릿은 웹 서버의 성능을 향상하기 위해 사용되는 자바 클래스의 일종이다. 
+서블릿은 JSP와 비슷한 점이 있지만, JSP가 HTML 문서 안에 Java 코드를 포함하고 있는 반면, 
+서블릿은 자바 코드 안에 HTML을 포함하고 있다는 차이점이 있다.
+
+-------------------------------------------------------------------------------------------------
+Servlet(서블릿)
+ 클라이언트의 요청을 처리하고, 그 결과를 반환하는 
+Servlet 클래스의 구현 규칙을 지킨 자바 웹 프로그래밍 기술
+
+https://mangkyu.tistory.com/14 참고
+--------------------------------------------------------------------------------------------------
+
+1. prod Dynamic Web Project 생성
+
+2.  res  Sourse Folder 생성
+	- kr.or.ddit.ibatis.config package 생성
+	- SqlMapClientFactory.java , dbinfo.properties , sqlMapConfig.xml 생성 or 복사
+	- kr.or.ddit.ibatis.mapper 에 prod.xml 생성 or 복사
+--------------------------------------------------------------------------------------------------
+	<SqlMapClientFactory> 
+	1-1. 문자 인코딩 케릭터셋을 설정하고 
+ 	Charset charset = Charset.forName("UTF-8");
+			Resources.setCharset(charset);
+
+	1.2 환경설정파일을 읽어온다.
+	 Reader rd = Resources.getResourceAsReader( sqlMapConfig.xml주소 );
+
+	1-3. 위에서 읽어온 Reader객체를 이용하여 실제 환경 설정을
+	행한 후 SQL문을 호출해서 실행할 객체를 생성한다.
+	 smc = SqlMapClientBuilder.buildSqlMapClient(rd); 
+	
+	smc : 쿼리문을 읽어와 실행할 객체
+
+	<dbinfo.properties>
+	Oracle DB 와 연결하기위해 필요.
+	driver / url / user / pass 정보를 기입해둔다.
+
+	<sqlMapConfig.xml>
+	ibatis 환경설정 파일
+	1. DB와 연결하는 정보를 properties 파일에 설정해 놓고 
+	properties 파일의 내용을 읽어 올 수 있도록 설정한다.
+	<properties resource = "kr/or/ddit/ibatis/config/dbinfo.properties"></properties>  
+
+	2. 각각의 sqlMap파일의 네임스페이스와 id속성값을 연결해서 실행할 쿼리문을 선택한다.
+	<settings useStatementNamespaces = "true"/>
+
+	3. 쿼리문에 사용할 VO객체를 사용하려면 패키지 이름을 포함한 전체 이름을 
+	   기술해야 하는데 그렇게 되면 문장이 너무 길어질 수 있다. 그래서 alias 를 사용한다.
+		형식: <typeAlias alias="alias명" type="클래스의 전체이름"/>
+
+	4. DB와 연결을 처리하는 부분
+	 	<transactionManager type="JDBC">
+		  	<dataSource type="SIMPLE">
+		  	<property name="JDBC.Driver" value="${driver}"/>
+		  	<property name="JDBC.ConnectionURL" value="${url}"/>
+		  	<property name="JDBC.Username" value="${user}"/>
+		  	<property name="JDBC.Password" value="${pass}"/>
+		  	</dataSource>
+		  </transactionManager>
+	5. 실행할 SQL문은 xml문서로 따로 작성한 후 그 xml 문서를 아래와 같이 등록한다.
+		형식 : <sqlMap resource = "경로명/파일명.xml"/> 
+
+	sqlMapConfig.xml 에서는 3번 type="클래스의 전체이름" 수정과 
+			        5번 sqlMap resource = "경로명/파일명.xml 을 설정하는게
+			        가장 중요하다.
+
+	<mapper>
+	1. xml 파일을 생성하며, xml 파일은 쿼리문을 수행하는 기능을 한다.
+	2. sqlMap의 namespace "이름값"를 설정하고 각 구문에 맞게 
+	select id ="id명" resultClass ="결과값 타입 유형" parameterClass="입력값 타입 유형" 
+	을 설정해준다.
+	<select> 쿼리문작성 </select>
+	
+--------------------------------------------------------------------------------------------------
+3. Web Content -> WEB-INF ->lib 에 "ibatis-2.3.4.726" "log4j-1.2.17" "ojdbc6" 추가
+	OR
+   Libraries - Web App Libraries 에 Build Path -> configure build path 선택
+	- "ibatis-2.3.4.726" "log4j-1.2.17" "ojdbc6" 추가
+
+
+4.Java Resources 에 src Source Folder에 controller / dao / service / vo Package 생성
+--------------------------------------------------------------------------------------------------
+	[controller]
+	 Web Servlet을 생성 
+	Which method stubs would you like to create? 에서 
+	doGet OR doPost 를 선택한다.
+
+ 	(학원에서는 doGet 을 사용했기 때문에 doGet으로 진행하겠다.)
+	
+	 1. 클라이언트 요청시 전송되는 데이터 받기 
+		
+		
+	 2. service 객체 얻어오기
+	IProdService service = ProdServiceImpl.getService();
+				
+				
+	 3. service 메서드 호출 후 결과값 받기
+	List<ProdVO> list = service.selectprod();
+				
+	 4. 결과값을 request 에 저장하기
+	request.setAttribute("아무이름", list);
+				
+	 5. jsp view 페이지로 이동
+	RequestDispatcher disp = request.getRequestDispatcher("0205/prod.jsp");
+	disp.forward(request, response);
+--------------------------------------------------------------------------------------------------
+	[dao]
+	
+	<interface 생성 ex)IProdDao >
+	interface 에서는 메서드를 선언한다.
+	public List<ProdVO> selectprod();
+	
+	<ProdDaoImpl class 생성>
+	private SqlMapClient client;
+	private static IProdDao dao;	
+
+	1. SqlMapClient객체 얻기
+	생성자를 생성한 후 객체를 얻어온다.
+	private ProdDaoImpl() { 
+		client = SqlMapClientFactory.getClient();
+	}
+
+	
+	2.service에서 사용될 자신의 객체를 생성하기
+	2-1.자신의 객체를 리턴하는 getDao()메서드 정의
+	public static IProdDao getDao(){
+		if(dao == null) dao = new ProdDaoImpl();
+		
+		return dao;
+	}	
+	3. mapper 실행하기
+	public List<ProdVO> selectprod() {		
+	List<ProdVO> list = null;
+		
+	try {
+	list = client.queryForList("xml파일의 namespace.xml파일의 id"); surround with try/catch로 try/catch 실행
+	} catch (SQLException e) {
+	// TODO Auto-generated catch block
+	e.printStackTrace();
+	} 
+	4. 실행결과를 service로 리턴
+	return list;	
+	}
+--------------------------------------------------------------------------------------------------
+	[service]
+	<interface 생성 ex)IProdService >
+	interface 에서는 메서드를 선언한다.
+	public List<ProdVO> selectprod();
+	
+	<ProdServiceImpl class 생성>
+	private IProdDao dao;
+	private static IProdService service;
+
+	1. 생성자에서 Dao 객체 얻어오기
+ 	private ProdServiceImpl() {
+		dao = ProdDaoImpl.getDao();
+	}
+	
+	2. servlet에서 사용할 자신의 객체를 생성하고 리턴한다.(getService)
+	public static IProdService getService() {
+		if(service == null) service = new ProdServiceImpl();
+		return service;
+	}
+	
+	3. Dao 메서드를 호출하고 결과값 리턴
+		public List<ProdVO> selectprod() {
+		List<ProdVO> list = null;
+	
+		list = dao.selectprod();
+		
+		return list;
+	}
+
+--------------------------------------------------------------------------------------------------
+5. WebContent에 폴더 생성 후 prod.jsp, request.html 생성 or 복사
+jsp 에선 html 로 보낼 구문을 적는다. (json / html 에 따라 달라짐)
+html 에선 jsp 내용을 받아온다. 
+
+

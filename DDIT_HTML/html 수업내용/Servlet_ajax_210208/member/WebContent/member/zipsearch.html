@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+
+
+<style>
+	.ziptr:hover{
+		background: crimson;
+	}
+</style>
+
+<script>
+$(function(){
+	//$('input[type=button]')
+	$('input:button').on('click',function(){
+		
+		//입력값 가져오기
+		dongvalue = $('#dong').val().trim();		// trim() 양 옆 공백 제거
+	
+		// 서버로 전송(요청 및 응답)
+		$.ajax({
+			url : '/member/DongSearch.do',		// context root : /member/	context root 를 쓸땐 앞에 슬래시 ( / ) 붙여줘야함. 
+			data : {"dong" : dongvalue },		// 공백 없이
+			type : 'post',
+			success : function(res){	//data 받을때 success 꼭 적을 필요는 없으나, 확인 차원으로 적어두자.
+				
+				code = "<table class='table table-bordered' border ='1'>";
+				code += "<tr><td>우편번호</td>";
+				code += "<td>주소</td>";
+				code += "<td>번지</td><tr>";
+				
+				$.each(res,function(i,v){	// v.code 는 jsp의 값과 일치해야한다.
+					code += "<tr class='ziptr'><td>"+ v.code+ "</td>";
+					code += "<td>" + v.addr + "</td>";
+					code += "<td>" + v.bunji + "</td><tr>";
+					
+				})
+				code += "</table>"
+				$('#result1').html(code);
+			},
+			error : function(xhr){	// 필수는 아니지만 확인 차원으로 적어두자.
+				alert("status : " + xhr.status)	//오류 메시지  200 : 200 은 응답 성공이지만  안뜨는경우. 응답은 성공했으나 형식이 잘못 되었을때.(따음표, 컴마 ), 403 : 요청이 잘 못 됬을 경우
+				
+			},
+			dataType : 'json'
+		})
+		
+	
+	})
+	
+		// 결과  window에서 원하는 행을 선택
+		$('#result1').on('click','.ziptr',function(){
+			
+			zipcode = $('td:eq(0)',this).text();
+			addr = $('td:eq(1)',this).text();
+			
+		// 폼에 출력
+		$('#zip', opener.document).val(zipcode);
+		$('#add1', opener.document).val(addr);
+		
+		// window 창 닫기
+		window.close();
+	
+			
+		})
+		
+})
+
+
+</script>
+
+<title>Insert title here</title>
+</head>
+<body>
+
+<div class="box">
+		<br><br> 
+		<h3>search zipcode</h3>
+		<input type="text" id="dong">
+		<input type="button" value="확인">
+		<div id="result1"></div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap
+	PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
+	"http://ibatis.apache.org/dtd/sql-map-2.dtd">
+	
+	<!-- 이 문서는 ibatis에서 처리할 SQL문을 작설하는 문서입니다. -->
+	
+	<sqlMap namespace="lprod">
+		<!-- 
+			이 부분에 처리할 SQL문에 맞는 태그를 사용하여 SQL문을 기술한다.
+			
+			사용할 수 있는 기본 태그들...
+			<typeAlias/>
+			<select> ~~~ </select>
+			<insert> ~~~ </insert>
+			<update> ~~~ </update>
+			<delete> ~~~ </delete>
+			등등...
+		 -->
+	<!--
+		 id속성 ==> 실행할 태그를 Java프로그램에서 호출할 때 사용하는 이름으로
+				   <sqlMap> 태그의 namespace속성값과 연결하여 사용한다.
+				   ( 예 : lprod.insertLprod )  
+				  id 설정은 변수명 설정이라고 생각하면 된다. 
+		 parameterClass 속성 ==> SQL문에 사용도리 데이터가 들어있는 객체를 기술한다.
+		 						(보통 VO클래스, 자바의 기본 자료형이름, Map객체등이 사용된다.)
+		 						(VO클래스등을 기술할 때는 해당 클래스의 전체 이름을 기술해야 한다.) 		  
+				  
+				  
+				  -->
+	<insert id="insertLprod" parameterClass="H_java_210201.LprodVO">
+		insert into lprod (lprod_id, lprod_gu, lprod_nm)  <!-- 컬럼명  -->
+		values (#lprod_id#, #lprod_gu#, #lprod_nm#) 
+		<!-- 물음표 대신 파라미터 클래스에서 지정한 객체의 변수명을 적어준다.
+			  컬럼명과 변수명을 구분하기 위해 변수명 앞뒤에 #을 붙여준다.
+		   -->
+		
+	</insert>
+	
+	<!-- parameterClass속성에 typeAlias 를 지정할 수 있다. -->
+	<!-- <update id = "updateLprod" parameterClass="lprodVo">  -->
+	<update id="updateLprod" parameterClass="H_java_210201.LprodVO">
+		update lprod set
+			lprod_id = #lprod_id#,
+			lprod_nm = #lprod_nm#
+			where lprod_gu = #lprod_gu#
+	
+	</update>
+		
+		
+		<!-- 데이터가 하나일 경우 그 데이터의 타입을 적어줄 수 있다. 대소문자 구분 안함.  -->
+		<!-- parameterClass에 설정되는 값이 단일값인경우 
+			 SQL문에 이 값을 나타내는 변수는 특별히 이름이 정해지지 않는다.
+			 (즉, 사용자 임의로 지정할 수 있다.특수문자는 사용불가)
+			 
+		 -->
+	<delete id="deleteLprod" parameterClass="String">
+	<!--  	delete from lprod	where lprod_gu = #lprod_gu# -->
+				delete from lprod	where lprod_gu = #%# 
+	</delete>
+	
+	<!-- 
+			resultClass 속성 == > select문을 처리한 결과를 저장할 VO클래스나 
+			자바의 기본 자료형 또는 Map객체를 지정한다.
+			select한 결과가 여러개이여도 이곳에 지정하는 것은 1개의 레코드가
+			저장될 클래스나 자료형 이름등을 지정하면 된다.
+			
+			select 한 결과가 여러개이면 resultClass에 지정한 클래스에
+			저장된 데이터들을 List에 담아서 보내준다.
+			
+			
+	-->
+	<select id="getAllLprod" resultClass="lprodVo">
+		
+		select * from lprod 
+	
+	</select>
+	
+	<select id="getLprod" resultClass="lprodVo" parameterClass="String">
+		select * from lprod
+		where lprod_gu = #lprod_gu#
+		
+	</select>
+	
+	
+	</sqlMap>
