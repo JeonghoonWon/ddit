@@ -1,0 +1,128 @@
+1. sql 로 query 확인
+
+2.  html 로 형태 작성 ( div 나 table 로 형태 잡기) ajax 
+
+3. pakage 생성 (main, dao, service, vo)
+
+4. vo 에 FeedTestVO.java(class) 생성. 변수 선언, getter / setter 생성
+
+5. dao 패키지에 Dao interface 만들기. 함수 이름 설정 throws SQLException; 설정
+ - IFeedTestDao 
+	// 팔로우회원  내피드 리스트로 불러오기
+	public List<FeedTestVO> getFeed(String user_id) throws SQLException;
+
+6. dao 패키지에 FeedTestDaoImpl.java(class) 생성, 생성시 add 에서 IFeedTestDao 인터페이스 상속 받기
+
+	private SqlMapClient client;
+	private static IFeedTestDao dao;
+	
+	1. SqlMapClient객체 얻기
+	생성자를 생성한 후 객체를 얻어온다.
+
+	private FeedTestDaoImpl() {
+		client = SqlMapClientFactory.getClient();
+		
+	}
+	2.service에서 사용될 자신의 객체를 생성하기
+	2-1.자신의 객체를 리턴하는 getDao()메서드 정의
+	public static IFeedTestDao getDao() {
+		if(dao == null) dao = new FeedTestDaoImpl();
+		return dao;
+		
+	}
+
+	return 값 변경 
+	return (List<FeedTestVO>)client.queryForList("FeedTest.getFeed",user_id);	
+
+
+7. sqlMapConfig.xml 에 설정
+
+  <typeAlias alias = "FeedTestVO" type="feedtest.vo.FeedTestVO"/>
+   <sqlMap resource="mapper/feedtest.xml"/>
+
+
+8. mapper 에 xml 작성 
+FeedTest.xml 생성 후 
+<!DOCTYPE sqlMap
+	PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
+	"http://ibatis.apache.org/dtd/sql-map-2.dtd"> 를 복사 붙여넣기
+
+
+<sqlMap namespace = "feedtest">  // sqlMap 작성 시 namespace 설정 
+	
+
+	// 쿼리문 id 는 생성했던 함수 이름 사용하고 result 는 반환값 parameter 는 입력값 넣어줌
+	<select id = "getFeed" resultClass = "FeedTestVO" parameterClass="String">
+	
+		select feed_cont as feedcontent, user_id, feed_date
+    from feed
+    where user_id in (select user_id
+                         from users
+                         where user_id in (select followee
+                                               from follow
+                                                 where follower = #user_id#)) 
+    or user_id = #user_id#  
+    
+    order by feed_date
+    
+	
+	
+	
+	</select>
+	
+	
+	</sqlMap>
+
+
+. service interface 생성
+IFeedTestService.java(interface)  생성 후 IFeedTestDao에서 작성한 함수 이름 그대로 사용
+
+. serviceimpl 생성
+FeedTestServiceImpl (class) 생성 후 add 에서 service 인터페이스 상속받기
+
+public class FeedTestServiceImpl implements IFeedTestService {
+	
+	
+	// ???????????
+	private IFeedTestDao dao;
+	private static IFeedTestService service;
+	
+	// 1. 생성자에서 dao 객체 얻어오기
+	public FeedTestServiceImpl() {
+		dao = FeedTestDaoImpl.getDao();
+	}
+	
+	public static IFeedTestService getService() {
+		if (service == null)
+			service = new FeedTestServiceImpl();
+
+		return service;
+	}
+
+	
+	@Override
+	public List<FeedTestVO> getFeed(String user_id) {
+		List<FeedTestVO> list = null;
+		
+		try {
+			list = dao.getFeed(user_id);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return list;
+	}
+
+}
+
+
+// dao 랑 service 테스트 해보기
+
+js 파일 생성
+javaScript Source File 로 생성
+
+
+
+
+
