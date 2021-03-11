@@ -1,0 +1,25 @@
+def add(a,b):
+    return a+b
+
+sum = add(1,5)
+print(sum)
+
+print("==================================")
+#minus, mul, div, mymodel
+
+def minus(a,b):
+    return a-b
+
+def mul(a,b):
+    return a*b
+
+def div(a,b):
+    return a/b
+
+def mymodel(a,b):
+    return a%b
+
+a = int(input("첫번째 숫자를 입력하시오."))
+b = int(input("두번째 숫자를 입력하시오."))
+
+print("{},{},{},{},{}".format(sum,minus,mul,div,mymodel)

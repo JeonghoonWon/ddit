@@ -1,0 +1,6 @@
+sun = 0
+for i in range(11):
+    sun += i
+
+print(sun)
+    

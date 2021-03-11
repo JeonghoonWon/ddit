@@ -1,0 +1,7 @@
+class Animal:
+    def __init__(self):
+        print("생성자")
+        
+if __name__ == '__main__':
+    ani = Animal()
+    

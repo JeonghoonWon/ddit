@@ -1,0 +1,11 @@
+a = 7   
+b = 7.3
+c = True
+d = "¾È³ç"
+e = '¾È³à¾û'
+
+print(a+1)
+print(b)
+print(not c)
+print(d + str(a))
+print(e)

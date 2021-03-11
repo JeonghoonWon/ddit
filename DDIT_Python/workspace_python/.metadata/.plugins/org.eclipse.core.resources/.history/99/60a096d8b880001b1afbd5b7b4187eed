@@ -1,0 +1,6 @@
+# 홀 짝 참고해서 가위바위보 만들기
+import random
+com = ""
+mine = input("가위/바위/보 선택하세요")
+result = ""
+rnd = random.random()
