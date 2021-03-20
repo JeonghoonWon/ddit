@@ -1,0 +1,15 @@
+import matplotlib as mpl
+from mpl_toolkits.mplot3d import Axes3D
+import numpy as np                
+import matplotlib.pyplot as plt  
+import pymysql
+
+
+
+arr = []
+mydb = pymysql.connect(
+        host = "localhost",
+        user = "root",
+        password = "python",
+        database = "_stock_old"
+        )

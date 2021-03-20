@@ -1,0 +1,40 @@
+import sys
+from PyQt5.QtWidgets import *
+from PyQt5 import uic
+from PyQt5.Qt import QIcon, QSize, QPushButton
+from PyQt5.uic.Compiler.qtproxies import QtGui, QtCore
+
+form_class = uic.loadUiType("myqt01_1.ui")[0]
+
+class MyWindow(QMainWindow, form_class):
+    def __init__(self):
+        super().__init__()
+        self.setupUi(self)
+       
+        pb = QPushButton(self)
+        pb.set.Icon(QtGui.Qicon("0.png"))
+        pb.stIcoSize(QtCore.QSize(40,40))
+        pb.
+        
+    
+    
+    def loadUI(self):
+        size = 40
+        for i in range(0,10):
+            for j in range(0,10):
+                button = QPushButton("", self)
+                button.setIcon(QIcon('0.png'))
+                button.setIconSize(QSize(40,40))
+                button.setGeometry(i*size,j*size,size,size)
+                #(x,y,width,height)
+    
+    def myclick(self):
+        size = 40
+        
+        
+
+if __name__ == "__main__":
+    app = QApplication(sys.argv)
+    myWindow = MyWindow()
+    myWindow.show()
+    app.exec_()

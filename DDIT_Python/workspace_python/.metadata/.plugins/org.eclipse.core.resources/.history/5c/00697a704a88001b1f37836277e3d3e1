@@ -1,0 +1,8 @@
+import numpy as np
+
+a = [0,0,0] 
+# numpy 배열로 만들면 가능
+a_n = np.array(a)
+
+print(a)
+print(a_n)

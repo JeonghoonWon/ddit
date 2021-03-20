@@ -1,0 +1,9 @@
+import time
+
+
+
+print ("Sleep 1 seconds from now on...")
+
+time.sleep(1)
+print("wake up!")
+

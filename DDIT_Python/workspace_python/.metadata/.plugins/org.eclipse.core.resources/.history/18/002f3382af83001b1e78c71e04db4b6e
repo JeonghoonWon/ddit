@@ -1,0 +1,31 @@
+a = 7  
+b = 7.3 
+c = True 
+d = "안녕" 
+e = '7' 
+
+
+print(a+1)
+print(b)
+print(c)
+print(d + str(a))
+print(int(e)+1)
+
+
+
+#Python 문자열 위치
+#숫자로 표현. 
+f = "Life is too short, You need Python"
+
+print("첫번재 문자 f[0] : " + f[0])
+print("마지막 문자 f[-1] : " + f[-1])
+
+#문자열 슬라이싱
+g = f[0]+f[1]+f[2]+f[3]
+print(g)
+print(f[0:4])
+# 시작점 부터 출력을 원하는 지점까지의 숫자를 적어주면 그 사이의 문자열을  출력해준다.
+# 슬라이싱 기법은 끝 반호를 포함하지 않기 때문에 4로 입력
+# 0 <= f < 4
+ 
+

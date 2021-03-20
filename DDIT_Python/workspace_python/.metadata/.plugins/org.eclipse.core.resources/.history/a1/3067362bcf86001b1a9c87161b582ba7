@@ -1,0 +1,36 @@
+'''
+Created on 2021. 3. 17.
+
+@author: Josh
+'''
+
+import requests
+from bs4 import BeautifulSoup
+ 
+response = requests.get('https://www.sedaily.com/Stock/Quote/?mobile')
+ 
+html = response.text
+
+#print(html)
+ 
+soup = BeautifulSoup(html, 'html.parser')
+
+#table01 = soup.find('dl',{'class':'.tbody'})
+
+#print(table01)
+
+for info in soup.select('.tbody'):
+    print(info.dt.text ,end="\t")
+    print(info.dd.span.text, end="\t")
+    print(info.dd.span.text, end="\t")
+    
+print("========================================")     
+
+
+    
+    
+
+
+
+
+

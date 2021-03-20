@@ -1,0 +1,8 @@
+'''
+Created on 2021. 3. 17.
+
+@author: Josh
+'''
+str = "12345"
+
+txt = str[0:1]
