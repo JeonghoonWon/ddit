@@ -1,5 +1,2 @@
-
-SELECT s_price FROM stock 
-WHERE 
-	s_name = "LG"
-	
+SELECT s000020, in_time FROM stock_sync_0121
+ORDER BY in_time
