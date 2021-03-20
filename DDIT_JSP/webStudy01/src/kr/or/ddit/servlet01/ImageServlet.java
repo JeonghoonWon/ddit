@@ -2,8 +2,12 @@
 package kr.or.ddit.servlet01;
 import javax.servlet.http.*;
 import javax.servlet.*;
+import javax.servlet.annotation.WebServlet;
+
 import java.io.*;
 
+
+@WebServlet("/01/image.do")
 public class ImageServlet extends HttpServlet{
 		// HttpServlet 을 상속 받는 클래스는 doget()메소드를 오버라이딩 할 수 있기 때문에 
 		// 이 클래스는 서블리으로 동작 가능
@@ -22,7 +26,9 @@ public class ImageServlet extends HttpServlet{
                      HttpServletResponse resp)
               throws ServletException,
                      IOException{
-		String imageFilename = req.getParameter("image");
+		String imageFilename = req.getParameter("image");	// 파라미터 찾기
+		
+		// 파라미터가 없으면,
 		if(imageFilename==null||imageFilename.isEmpty()) {
 			resp.sendError(HttpServletResponse.SC_BAD_REQUEST);	//상태를 알려준다. 프로그램이 인지할수있도록 숫자로 내보내서 클라이언트가 인지 할 수 있도록 한다. 잘못된 접근 방법(400)
 			
@@ -32,9 +38,12 @@ public class ImageServlet extends HttpServlet{
 		}
 		
 		String folder = "d:/contents";
+		// 파일객체 생성
 		File imageFile = new File(folder, imageFilename);
 		// File(String dir, String name) : dir와 name 문자열을 연결한 문자열로
 		// 경로를 생성하여 File 객체를 생성한다.
+		
+		// 파일 객체가 존재하지 않는다면,
 		if(!imageFile.exists()) {
 			resp.sendError(HttpServletResponse.SC_NOT_FOUND);	
 		//404 error 400번때 error 는 client의 문제 / 500번때 error 는 개발자의 문제
@@ -47,6 +56,9 @@ public class ImageServlet extends HttpServlet{
 			resp.sendError(HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE);
 			return;
 		}
+		
+		// 위에 if 를 다 통과하면 
+		// response body 에 실제 정보가 들어감.
 		resp.setContentType(mime);                 
 		FileInputStream fis = new FileInputStream(imageFile);
 		OutputStream os = resp.getOutputStream();

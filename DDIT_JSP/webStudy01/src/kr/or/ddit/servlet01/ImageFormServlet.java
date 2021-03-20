@@ -1,47 +1,50 @@
 package kr.or.ddit.servlet01;
-import javax.servlet.http.*;
-import javax.servlet.*;
 import java.io.*;
+import java.util.*;
 
-public class ImageFormServlet extends HttpServlet{
+import javax.servlet.*;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.*;
 
-	protected void doGet(HttpServletRequest req,
-                     HttpServletResponse resp)
-              throws ServletException,
-                     IOException{
-       
-        resp.setContentType("text/html;charset=UTF-8");
-        
+@WebServlet("/01/imageForm.tmpl")
+public class ImageFormServlet extends AbstractUserTmplServlet {
+	@Override
+	protected void setContentType(HttpServletResponse resp) {
+		resp.setContentType("text/html;charset=UTF-8");
+		
+	}
+
+	@Override
+	protected void makeData(HttpServletRequest req) {
+		System.out.println("서블릿이 요청 받았음");
+		
 		String folder = "d:/contents";
 		File contents = new File(folder);
-        String[] children = contents.list();	
-        
-       
-     
-        StringBuffer html = new StringBuffer( "<html><body>");
-        
-        html.append("<form action='image.do'><select name ='image'>");
-        for(String child : children){
-    		String mime =  getServletContext().getMimeType(child);
-    		if(mime!=null && mime.startsWith("image/")) {
-    			
-    			 html.append(String.format("<option>%s</option>",child));
-    			
-    		}
-           
-
-        }
-        html.append("</select><input type='submit' value='전송'/></form></body></html>");
-        PrintWriter out = null;
-        try {
-        	out = resp.getWriter();
-        	out.println(html);
-        }finally {
-        	if(out!=null)
-        		out.close();
-        }
+		String[] children = contents.list(new FilenameFilter() {
+			
+			@Override
+			public boolean accept(File dir, String name) {
+				String mime = application.getMimeType(name);
+				return mime != null && mime.startsWith("image/"); //true를 반환하여 나온다.
+				
+			}
+		});
+			
+		Date today = new Date();
+		req.setAttribute("today", today);
+		
+		StringBuffer options = new StringBuffer();
+		
+		for(String child : children){
+			options.append(String.format("<option>%s</option>", child));
+		}
+		req.setAttribute("options", options);
+		
 	}
 	
-}        
-	// 1. 이미지 아닌 코드 걸러낸다
-	// 2. 개발환경 구축 
+	// 작업의 순서
+	// 1. tmpl 파일을 읽어온다.
+	// 2. 만들어야 할 데이터를 작성한다. (동적이라면 미리 만들 수 없다.)
+	// 3. tmpl에 필요한 데이터를 치환한다.
+	// 4. 출력
+}

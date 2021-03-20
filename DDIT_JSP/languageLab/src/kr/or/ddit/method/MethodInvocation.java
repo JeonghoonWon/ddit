@@ -17,7 +17,7 @@ public class MethodInvocation {
 					
 	}
 	private static void callByReference(StringBuffer data) {
-		data.append("append data");		// 
+		data.append("append data");		// callByReference 를 사용하면 전역변수 대신 값을 사용할 수 있다??
 	}
 	
 }
