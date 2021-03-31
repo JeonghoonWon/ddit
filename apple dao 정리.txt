@@ -1,0 +1,873 @@
+package dao;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+import util.JDBCUtil;
+
+public class AdminDao {
+
+	private static AdminDao instance;
+	private AdminDao(){}
+	public static AdminDao getInstance(){
+		if(instance == null) {
+			instance = new AdminDao();
+		}
+		return instance;
+	}
+	
+	private static JDBCUtil jdbc = JDBCUtil.getInstance();
+	
+	public Map<String, Object> selectUser(String userId, String password) {;
+		String sql = "SELECT SUPV_ID, SUPV_PW, SUPV_NAME FROM SUPV "
+				+ "WHERE SUPV_ID = ? AND SUPV_PW = ?";
+		
+		List<Object> param = new ArrayList<>();
+		param.add(userId);
+		param.add(password);
+	
+		return jdbc.selectOne(sql,param);
+		
+	}
+	
+	
+	// FAQ 전체 조회 (관리자 모드)
+
+	public List<Map<String, Object>> selectFAQ() {
+		
+		String sql = "SELECT FAQ_INDEX, SUPV_ID, FAQ_TITLE, FAQ_CONTENT FROM FAQ";
+		
+		return jdbc.selectList(sql);
+	}
+	
+	// FAQ 내용 조회 (관리자 모드)
+
+	public List<Map<String, Object>> contentFAQ() {
+
+		String sql = "SELECT FAQ_INDEX, SUPV_ID, FAQ_TITLE, FAQ_CONTENT FROM FAQ";
+		
+		return jdbc.selectList(sql);
+	}
+	
+	
+	
+	
+	
+	// FAQ 등록하기 (관리자 모드)
+	public static int FAQ_INSERT(List<Object> param) {
+		List<Object> param2 = param;
+		String sql = "INSERT INTO FAQ VALUES(?,?,?,?)";
+				
+		return jdbc.update(sql, param2);
+	}
+
+	
+	// 상품 삭제하기
+	
+	public int FAQ_DELETE(String a) {
+		
+		String sql = "DELETE FROM FAQ WHERE FAQ_INDEX = ?";
+		List<Object> param = new ArrayList<>();
+		param.add(a);
+		return jdbc.update(sql, param);
+	}
+	
+	
+	
+    // 번호부여
+    public static int FAQ_NO() {
+      String sql = "SELECT NVL(MAX(FAQ_INDEX), 0) + 1 AS FAQ_INDEX FROM FAQ";
+      Map<String, Object> number = jdbc.selectOne(sql);
+      String result = String.valueOf(number.get("FAQ_INDEX"));
+      int a = Integer.parseInt(result);
+
+      return a;
+    }
+	
+	
+	
+	
+	
+}
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+package dao;
+
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+import controller.Controller;
+import util.JDBCUtil;
+
+public class BoardDao {
+   
+   private static BoardDao instance;
+   
+   private BoardDao(){}
+   
+   public static BoardDao getInstance(){
+      if(instance == null) {
+         instance = new BoardDao();
+      }
+      return instance;
+   }
+   
+   private static JDBCUtil jdbc = JDBCUtil.getInstance();
+//   public static Map<String, Object> commentboardUser;
+   // 조회
+      public List<Map<String, Object>> selectBoardList() {
+         String sql = "SELECT A.BOARD_NO, A.BOARD_TITLE, A.BOARD_CONT, B.MEM_NAME, "
+               + "A.BOARD_DATE FROM BOARD A "
+               + "LEFT OUTER JOIN MEMBER B"
+               + " ON A.MEM_ID = B.MEM_ID "
+               + " ORDER BY A.BOARD_NO DESC";
+         
+         return jdbc.selectList(sql);
+      }
+   
+    // 게시글 없는 경우 oracle 행 갯수로 게시글 없음 알리기
+    public static int onoffList() {
+
+       String sql = "SELECT * FROM BOARD";
+      int result = jdbc.update(sql);
+      return result;
+    }
+      
+   // 1개의 글 상세조회
+    public Map<String, Object> viewOne(int a) {
+      List<Object> param = new ArrayList<>();
+      param.add(a);
+      String sql = "SELECT * FROM BOARD WHERE BOARD_NO = ?";
+      
+      return jdbc.selectOne(sql, param);
+    }
+   
+   
+   // 게시글 등록하기
+   public static int insert(List<Object> param) {
+      String sql = "INSERT INTO BOARD VALUES(?,?,?,sysdate,?)";
+      return jdbc.update(sql, param);
+   }
+      
+   // 삭제하기
+   public int deleteBoard(List<Object> param) {
+   
+      String sql = "DELETE FROM BOARD WHERE BOARD_NO = ?";
+      
+   /*   String sql = "DELETE * FROM BOARD A WHERE BOARD_NO = ?"
+               + "(SELECT * FROM COMMENT_BOARD B WHERE A.BOARD_NO = B.BOARD_NO)";
+      */
+     
+      return jdbc.update(sql, param);
+   }
+   
+   // 수정하기
+   public int updateOne(List<Object> param) {
+      List<Object> param2 = param;
+      String sql = "UPDATE BOARD SET BOARD_TITLE = ?, BOARD_DATE = sysdate, BOARD_CONT = ?  WHERE BOARD_NO = ?";
+      return jdbc.update(sql, param2);
+   }
+
+   
+    // 번호부여
+    public static int createNewBoardNo() {
+      String sql = "SELECT NVL(MAX(BOARD_NO), 0) + 1 AS BOARD_NO FROM BOARD";
+      Map<String, Object> number = jdbc.selectOne(sql);
+      String result = String.valueOf(number.get("BOARD_NO"));
+      int a = Integer.parseInt(result);
+
+      return a;
+
+    }
+    
+
+/////////////////////////////////////////////////////////////////////////////////////
+
+    //댓글 등록하기
+   public static int insertComment(List<Object> param) {
+         String sql = "INSERT INTO COMMENT_BOARD VALUES(?,?,?,?,sysdate,?)";
+      int result = jdbc.updateComment(sql, param);
+      
+      return result;
+   }
+
+   // 댓글 상세 보기
+   public Map<String, Object> viewcommentOne(int a) {
+         List<Object> param = new ArrayList<>();
+         param.add(a);
+         String sql = "SELECT * FROM COMMENT_BOARD WHERE BOARD_NO = ?";
+
+      return jdbc.selectOne(sql, param);
+   }
+
+   // 댓글 수정하기
+   public int updateComment(List<Object> param) {
+         List<Object> param2 = param;
+         String sql = "UPDATE COMMENT_BOARD SET COMMENT_CONT= ?, COMMENT_DATE = SYSDATE WHERE BOARD_COMMENT_NUM = ? AND BOARD_NO = ? ";
+      
+      return jdbc.update(sql, param2);
+   }
+
+   // 댓글 번호 구해오기
+   public static int createNewCommentBoardNo() {
+      int CommentBoardNo = 0;
+         String sql = "SELECT NVL(MAX(COMMENT_NO), 0) + 1 AS COMMENT_NO FROM COMMENT_BOARD";
+         Map<String, Object> number = jdbc.selectOne(sql);
+         String result = String.valueOf(number.get("COMMENT_NO"));
+      
+      int a = Integer.parseInt(result);
+      
+      return a;
+   }
+
+   // BOARD_NO 당 댓글 보기
+   public List<Map<String, Object>> selectcommentList(List<Object> list) {
+         String sql = "SELECT * FROM COMMENT_BOARD WHERE BOARD_NO = ? ORDER BY 1";
+      
+      return jdbc.selectList(sql, list);
+   }
+   
+   // 게시글 당 댓글 번호 부여
+   public Map<String,Object> boardcommentNum() {
+      
+         String sql = " SELECT NVL(MAX(BOARD_COMMENT_NUM),0)+1 AS BOARD_COMMENT_NUM FROM COMMENT_BOARD WHERE BOARD_NO = ? ";
+      int boardNo = Controller.useBoard;
+         List<Object> param = new ArrayList<>();
+         param.add(boardNo);
+      return jdbc.selectOne(sql,param);
+   }
+   
+   // 댓글 삭제
+
+   public int deleteComment(List<Object> param) {
+      
+      String sql = " DELETE FROM COMMENT_BOARD "
+            + "WHERE BOARD_NO = ?"
+            +" AND BOARD_COMMENT_NUM = ? ";
+      
+      return jdbc.update(sql, param);
+   }
+   
+   
+   // 게시글 삭제를 위한 댓글삭제
+   public int delAllComment(List<Object> param) {
+      
+      String sql = "DELETE FROM COMMENT_BOARD WHERE BOARD_NO = ?";
+      
+      
+      return jdbc.update(sql, param);
+   }
+   
+   
+   // 댓글이삭제된 게시글 삭제
+   public int commentDelAndBoardDell(List<Object> param) {
+      
+      String sql = "DELETE FROM BOARD WHERE BOARD_NO = ?";
+      
+      return jdbc.update(sql, param);
+   }
+       
+      
+   
+   
+   
+
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+package dao;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+import service.OrderService;
+import util.JDBCUtil;
+import util.ScanUtil;
+import util.View;
+
+public class OrderDao {
+
+	Map<String, Object> userInfo;
+	private static OrderDao instance;
+
+	private OrderDao() {}
+
+	public static OrderDao getInstance() {
+		if (instance == null) {
+			instance = new OrderDao();
+		}
+		return instance;
+	}
+
+	private static OrderService orderService  =OrderService.getInstance();
+	private static JDBCUtil jdbc = JDBCUtil.getInstance();
+
+	static int cartNo;
+
+	public static int createNewCartNo() {
+		String sql = "SELECT NVL(MAX(CART_NO), 0) + 1 AS CART_NO FROM CART";
+		Map<String, Object> number = jdbc.selectOne(sql);
+		int a = (int) number.get("CART_NO");
+		return a;
+	}
+
+	public static int createNewCartProdNo() {
+
+		String sql = "SELECT NVL(MAX(CART_PROD_NO), 0) + 1 AS CART_PROD_NO FROM CART_PROD";
+		Map<String, Object> number = jdbc.selectOne(sql);
+		int a = (int) number.get("CART_PROD_NO");
+		return a;
+	}
+
+	public static int createNewPayNo() {
+		String sql = "SELECT NVL(MAX(PAY_NO), 0) + 1 AS PAY_NO FROM PAY";
+		Map<String, Object> number = jdbc.selectOne(sql);
+		int a = (int) number.get("PAY_NO");
+		return a;
+	}
+
+	public int order_cart_prod(Map<String, Object> prodList, int count,
+			Map<String, Object> userInfo1, int getCartNo) {
+
+		userInfo = userInfo1;
+		String sql1 = "INSERT INTO CART_PROD VALUES(?,?,?,?,?)";
+		int cartProdNo = createNewCartProdNo();
+		// CART에서 CART_NO를 변수로 받아옴.
+		String sql2 = "SELECT CART_NO FROM CART WHERE CART_NO = ?";
+
+		List<Object> param1 = new ArrayList<>();
+		param1.add(getCartNo);
+
+		Map<String, Object> number = jdbc.selectOne(sql2, param1);
+
+		cartNo = Integer.parseInt(String.valueOf(number.get("CART_NO")));
+
+		String prodMname = (String) prodList.get("PROD_MNAME");
+		String prodNum = (String) prodList.get("PROD_NUM");
+
+		List<Object> param = new ArrayList<>();
+
+		param.add(cartProdNo);
+		param.add(prodNum);
+		param.add(prodMname);
+		param.add(cartNo);
+		param.add(count);
+
+		int result = jdbc.update(sql1, param);
+
+		if (0 < result) {
+			cartStack();
+		} else {
+			System.out.println(" orderDao 실패 !");
+		}
+		return 0;
+	}
+
+	public static int cartStack() {
+
+		String sql = "UPDATE CART"
+				+ " SET cart_price = (SELECT sum(A.CART_PROD_QTY * B.PROD_PRICE) as cart_price"
+				+ " FROM CART_PROD A, PROD B, CART C"
+				+ " WHERE A.PROD_NUM = B.PROD_NUM"
+				+ " AND A.CART_NO = C.CART_NO" + " AND C.CART_NO= ?)"
+				+ " WHERE CART_NO = ?";
+
+		List<Object> result = new ArrayList<>();
+		result.add(cartNo);
+		result.add(cartNo);
+		int number = jdbc.update(sql, result);
+
+		return number;
+	}
+
+	public static void setCart(Map<String,Object> user){
+		int cartNo = createNewCartNo();
+
+		String sql = "INSERT INTO CART" + " VALUES(?,?,0,sysdate,'N','V')";
+
+		List<Object> list = new ArrayList<>();
+
+		String memid = (String) user.get("MEM_ID");
+
+		orderService.getCartNo(cartNo);
+		list.add(cartNo);
+		list.add(memid);
+
+		int result = jdbc.update(sql, list);
+		
+	}
+	
+	public List<Map<String, Object>> selectAllProd() {
+
+		String sql = "SELECT *" + " FROM CART_PROD" + " WHERE CART_NO = ?";
+
+		List<Object> param = new ArrayList<>();
+		param.add(cartNo);
+		List<Map<String, Object>> result = jdbc.selectList(sql, param);
+
+		return result;
+	}
+
+	public List<Map<String, Object>> calTotalPrice() {
+
+		String sql = "SELECT CART_PRICE" + " FROM CART" + " WHERE CART_NO = ?";
+
+		List<Object> param = new ArrayList<>();
+		param.add(cartNo);
+
+		List<Map<String, Object>> result = jdbc.selectList(sql, param);
+
+		return result;
+
+	}
+	
+	public List<Map<String, Object>> calTotalPrice(Map<String, Object> getNum) {
+
+		String sql = " SELECT SUM(A.CART_PROD_QTY*B.PROD_PRICE)"
+				   + " AS CART_PRICE"
+                   + " FROM CART_PROD A, PROD B"
+                   + " WHERE A.CART_NO = ?"
+                   + " AND B.PROD_MNAME = A.PROD_MNAME";
+
+		List<Object> param = new ArrayList<>();
+		
+		String temp = String.valueOf(getNum.get("CART_NO"));
+		int temp1 = Integer.parseInt(temp);
+		
+		param.add(temp1);
+
+		List<Map<String, Object>> result = jdbc.selectList(sql, param);
+
+		return result;
+
+	}
+
+	public int pay_insert(List<Object> payInsert) {
+
+		String sql = "INSERT INTO PAY" + " VALUES(?,?,?,?)";
+
+		int result = jdbc.update(sql, payInsert);
+
+		return result;
+	}
+
+	public void updateCartBill() {
+
+		String sql = "update cart " + "set cart_bill = 'Y'"
+				+ " where cart_no = ?";
+
+		List<Object> result = new ArrayList<>();
+
+		result.add(cartNo);
+		int number = jdbc.update(sql, result);
+	}
+	
+	public void updateCartBill(int cart_no) {
+		String sql = "update cart " + "set cart_bill = 'Y'"
+				+ " where cart_no = ?";
+		List<Object> result = new ArrayList<>();
+
+		result.add(cart_no);
+		int number = jdbc.update(sql, result);
+	}
+
+	public List<Map<String, Object>> myCartList(Map<String, Object> userInfo) {
+		
+		String sql = "SELECT * FROM CART WHERE MEM_ID = ?"
+				+ " ORDER BY CART_NO";
+		String ID = String.valueOf(userInfo.get("MEM_ID"));
+		List<Object> cartList = new ArrayList<>();
+		cartList.add(ID);
+		List<Map<String,Object>> selectAll = jdbc.selectList(sql, cartList);
+		return selectAll;
+	}
+
+	public List<Map<String, Object>> showOrderInfo(Map<String, Object> getNum) {
+		
+		String sql = "SELECT *"
+                    + " FROM CART_PROD"
+                    + " WHERE CART_NO = ?";
+		String input = String.valueOf(getNum.get("CART_NO"));
+		int input2 = Integer.parseInt(input);
+		List<Object> param = new ArrayList<>();
+		
+		param.add(input2);
+		List<Map<String, Object>> findList = jdbc.selectList(sql, param);
+		return findList;
+	}
+
+	public int orderCartDelete(int cartNo){
+		
+		String sql1 = "UPDATE CART"
+				   + " SET CART_VISIBILITY = 'N'"
+				   + " WHERE CART_NO = ?";
+		
+		List<Object> param = new ArrayList<>();
+		param.add(cartNo);
+		
+		int result = jdbc.update(sql1,param);
+
+
+		return result;
+	}
+	
+	public List<Map<String, Object>> checkPay(int cart_no) {
+		String sql = "SELECT CART_BILL"
+                   + " FROM CART"
+                   + " WHERE CART_NO = ?";
+		List<Object> param = new ArrayList<>();
+		param.add(cart_no);
+		List<Map<String, Object>> findList = jdbc.selectList(sql, param);
+		return findList;
+	}
+
+	public void updateMileage(int newMileage,Map<String,Object> userInfo) {
+		
+		String ID = String.valueOf(userInfo.get("MEM_ID"));
+		String sql = "UPDATE MEMBER SET MEM_MILEAGE = ?  WHERE MEM_ID = ?";
+		List<Object> param = new ArrayList<>();
+		param.add(newMileage);
+		param.add(ID);
+		int result = jdbc.update(sql, param);
+	}
+
+}
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+package dao;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+import util.JDBCUtil;
+
+public class ProdDao {
+	
+	private static ProdDao instance;
+	private ProdDao(){}
+	public static ProdDao getInstance(){
+		if(instance == null) {
+			instance = new ProdDao();
+		}
+		return instance;
+	}
+	
+	private static JDBCUtil jdbc = JDBCUtil.getInstance();
+	
+	
+	
+	// 등록 상품 조건 조회 (회원 모드) 
+
+	public List<Map<String, Object>> selectFilterProd(String name) {
+		String sql = "SELECT PROD_NUM, PROD_MNAME, PROD_NAME, "
+				+ "PROD_PRICE, PROD_COLOR, PROD_STOCK" 
+				+ " FROM PROD WHERE PROD_NAME = ";
+		sql = sql + "'" + name + "'";
+		return jdbc.selectList(sql);
+	}
+	
+	
+	
+	// 등록 상품 전체 조회 (관리자 모드)
+
+	public List<Map<String, Object>> selectProd() {
+		String sql = "SELECT PROD_NUM, PROD_MNAME, PROD_NAME, "
+				+ "PROD_PRICE, PROD_COLOR, PROD_STOCK" 
+				+ " FROM PROD";
+		
+		return jdbc.selectList(sql);
+	}
+	
+	
+	// 원하는 상품 하나 조회
+	public Map<String, Object> viewOneProd(String a) {
+		List<Object> param = new ArrayList<>();
+		param.add(a);
+		String sql = "SELECT * FROM PROD WHERE SUBSTR(PROD_NUM,5,3) = ?";
+
+		return jdbc.selectOne(sql, param);
+	}
+	
+	
+	// 상품 등록하기
+	
+	public static int prodIn(List<Object> param) {
+		System.out.println("상품등록 진입");
+		List<Object> param2 = param;
+		String sql = "INSERT INTO PROD VALUES(?,?,?,?,?,?)";
+		System.out.println("상품등록 완료");	
+		return jdbc.update(sql, param2);
+	}
+
+	
+	
+	
+	// 상품 삭제하기
+	
+	public int prodDelete(String a) {
+		
+		String sql = "DELETE FROM PROD WHERE PROD_NUM = ?";
+		List<Object> param = new ArrayList<>();
+		param.add(a);
+		return jdbc.update(sql, param);
+	}
+	
+	
+	 // 상품 번호 부여
+	public static String createNewProdNum() {
+		
+		int boardNo = 0;
+		String sql = "SELECT COUNT(*) + 1 AS PROD_NUM FROM PROD";
+		Map<String, Object> number = jdbc.selectOne(sql);
+		int a = (int) number.get("PROD_NUM");
+		String idString = "P1";
+		String numString = String.format("%05d", a);  // 5자리 포맷에 빈칸은 0으로 채워준다.
+													  // ex) a = 1111  -> numString = 01111		
+													  // ex) a = 1     -> numString = 00001
+		
+		
+		return idString+numString;
+	}
+	
+	
+	
+	 // 숫자인 게시글 번호 부여/채번
+//	public static int createNewBoardNo() {
+//		int boardNo = 0;
+//		String sql = "SELECT NVL(MAX(BOARD_NO), 0) + 1 AS BOARD_NO FROM TB_JDBC_BOARD";
+//		Map<String, Object> number = jdbc.selectOne(sql);
+//		int a = (int) number.get("BOARD_NO");
+//	return a;
+//	}
+	
+	
+	
+	
+
+}
+
+
+////////////////////////////////////////////////////////////////////////////////////////////
+
+package dao;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import service.OrderService;
+import util.JDBCUtil;
+
+public class UserDao {
+	
+	private static UserDao instance;
+	private UserDao(){}
+	public static UserDao getInstance(){
+		if(instance == null) {
+			instance = new UserDao();
+		}
+		return instance;
+	}
+	
+	private JDBCUtil jdbc = JDBCUtil.getInstance();
+	private OrderService orderService = OrderService.getInstance();
+	
+	 // ID, PW, Name, ADD, PHONE, GENDER, Birth 입력
+	   public int insertUser(Map<String, Object> param) {
+	     
+		   String sql = "INSERT INTO MEMBER VALUES (?, ?, ?, ?, ?,5000, ?, ?, ?)"; 
+	             
+	      List<Object> p = new ArrayList<>();
+	      p.add(param.get("MEM_ID"));
+	      p.add(param.get("MEM_PW"));
+	      p.add(param.get("MEM_NAME"));
+	      p.add(param.get("MEM_ADD"));
+	      p.add(param.get("MEM_PHONE"));
+	      p.add(param.get("MEM_GENDER"));
+	      p.add(param.get("MEM_BIRTH"));
+	      p.add(param.get("MEM_PW_ANS"));
+	      
+	      return jdbc.update(sql, p);
+	   }
+	   
+	// 로그인 확인
+	   public Map<String, Object> selectUser(String userId, String password) {
+
+	      String sql = "SELECT MEM_ID, MEM_PW, MEM_NAME, MEM_MILEAGE FROM MEMBER "
+	            + "WHERE MEM_ID = ? AND MEM_PW = ?";
+	      List<Object> param = new ArrayList<>();
+	      param.add(userId);
+	      param.add(password);
+	      
+	      
+	      return jdbc.selectOne(sql, param);
+	   }
+	   
+	   
+	// 장바구니 set   
+	public int setCart(Map<String, Object> user) {
+		
+		int cartNo = createNewCartNo();
+		
+		String sql = "INSERT INTO CART"
+				+ " VALUES(?,?,0,sysdate,'N','V')";
+		
+		List<Object> list = new ArrayList<>();
+	
+		String memid = (String) user.get("MEM_ID");
+		
+		orderService.getCartNo(cartNo);
+		list.add(cartNo);
+		list.add(memid);
+		
+		jdbc.update(sql,list);
+		
+		return cartNo;
+	}
+	
+	
+	// FAQ 전체 조회
+	public List<Map<String, Object>> selectFAQ() {
+
+		String sql = "SELECT FAQ_INDEX, SUPV_ID, FAQ_TITLE, FAQ_CONTENT FROM FAQ";
+		
+		return jdbc.selectList(sql);
+	}
+	
+	
+	// 번호부여
+	public int createNewCartNo() {
+		
+		String sql = "SELECT NVL(MAX(CART_NO), 0) + 1 AS CART_NO FROM CART";
+		
+		Map<String, Object> number = jdbc.selectOne(sql);
+		
+		int a = (int) number.get("CART_NO");
+		
+		return a;
+	}
+	
+	
+	// 비밀번호 확인하기 위해 받아옴
+	public Map<String, Object> passwordConform(String param) {
+		
+		String sql = "SELECT MEM_PW FROM MEMBER WHERE MEM_ID = ?";
+		
+		List<Object> list = new ArrayList<>();
+		list.add(param);
+		
+		return jdbc.selectOne(sql, list);
+	}
+	
+	  // 비밀번호, 주소 업데이트
+	   public int accountUpdate(List<Object> param) {
+	      
+	      String sql = "UPDATE MEMBER SET MEM_PW = ?, MEM_ADD = ?, MEM_NAME = ?, MEM_PHONE = ? WHERE MEM_ID = ?";
+	      
+	      return jdbc.update(sql, param);
+	   }
+	
+	// 회원탈퇴
+	public int deleteUserAll(List<Object> param) {
+		
+		String sql  = "DELETE FROM MEMBER WHERE MEM_ID = ?";
+		String sql2 = "DELETE FROM CART WHERE MEM_ID = ?";
+		String sql3 = "DELETE FROM COMMENT_BOARD WHERE MEM_ID = ?";
+		String sql4 = "DELETE FROM BOARD WHERE MEM_ID = ?";
+	    String sql5 = " DELETE "
+	    			+ " FROM CART_PROD "
+	    			+ " WHERE CART_NO = "
+	    			+ "(SELECT MAX(CART_NO)"
+	    			+ " FROM CART "
+	    			+ "  WHERE MEM_ID = ?)";
+		// String sql5 = "DELETE FROM CART_PROD WHERE CART_NO = (SELECT CART_NO FROM CART WHERE MEM_ID = ? AND CART_PRICE != 0)";	
+		
+		jdbc.update(sql3, param);
+		//System.out.println("게시판 댓글 삭제 완료");
+		jdbc.update(sql4, param);
+		//System.out.println("게시글 삭제 완료");
+		
+		jdbc.update(sql5, param); // 장바구니 번호
+		//System.out.println("장바구니목록 삭제 완료");
+		
+		jdbc.update(sql2, param);
+		//System.out.println("장바구니 삭제 완료");
+		
+		return jdbc.update(sql, param);
+	}
+	
+	// 거래내역조회
+	public List<Map<String, Object>> payHistory (List<Object> param) {
+		
+	      String sql = "SELECT CART_NO, MEM_ID, CART_PRICE, CART_DATE, CART_BILL FROM CART WHERE CART_BILL = 'Y' AND MEM_ID = ?";
+	      
+	      return jdbc.selectList(sql, param);
+	}
+	 // FAQ 내용 조회
+	   public List<Map<String, Object>> contentFAQ() {
+
+	      String sql = "SELECT FAQ_INDEX, SUPV_ID, FAQ_TITLE, FAQ_CONTENT FROM FAQ";
+	      
+	      return jdbc.selectList(sql);
+	   }
+	   
+	
+	
+	   
+	   // 입력한 아이디가 있는지 확인
+	   public Map<String, Object> confirmId(List<Object> param) {
+	      
+	      String sql = "SELECT COUNT(*) FROM MEMBER WHERE MEM_ID = ?";
+	      
+	     
+	      
+	      return jdbc.selectOne(sql, param);
+	   }
+	   
+	   // 비밀번호 찾기 비교확인
+	   public Map<String, Object> findPW(List<Object> param) {
+	      
+	      String sql = "SELECT MEM_PW, MEM_ID, MEM_PW_ANS FROM MEMBER WHERE MEM_ID = ?";
+	      
+	      return jdbc.selectOne(sql, param);
+	      
+	   }
+	   
+	   // 임시비밀번호로 업데이트   
+	   public int randomPw(List<Object> param) {
+	      
+	      String sql = "UPDATE MEMBER SET MEM_PW = ? WHERE MEM_ID = ?";
+	      
+	      return jdbc.update(sql, param);
+	   }
+	   
+	   	
+	
+	   
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

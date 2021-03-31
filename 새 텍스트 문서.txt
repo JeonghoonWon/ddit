@@ -1,0 +1,14 @@
+1. 외부 라이브러리 추가
+ibatis-2.3.4.726.jar
+ojdbc6.jar
+
+
+2. ibatis 설정 파일
+	sqlMapConFig.xml
+	1. DB정보
+	2. alias 설정
+	3. mapper 등록
+
+3. ibatis를 실행하기 위한 객체
+SqlMapClient 객체를 생성하기 위해서
+sqlMapConfig.xml 이 필요하다

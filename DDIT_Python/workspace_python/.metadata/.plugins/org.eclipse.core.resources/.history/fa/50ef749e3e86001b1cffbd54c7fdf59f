@@ -1,5 +1,0 @@
-from conda_env.installers import pip
-from anaconda_project.internal.pip_api import install
-from sqlalchemy.dialects.mysql import pymysql
-from isapi.install import Install
-pip Install pymysql

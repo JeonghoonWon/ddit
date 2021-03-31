@@ -1,0 +1,155 @@
+1~5를 하나의 틀로 생각
+
+1. 쿼리 작성
+--> 필요한 모든 걸 불러온다.
+--> 화면 구성도 or 디자인 시안을 보고 필요한 것들 정리 후 불러오자.
+--> 조인 필수
+--> as 변수명을 설정해서 알아보기 쉬운 명을 정해둔다.
+
+2. vo 생성
+-->쿼리에 as 로 정해둔 이름값을 변수명으로 불러온다
+	변수랑 쿼리  수 확인 데이터값 확인
+--> getter/ setter 생성
+
+
+3. xml
+
+res > config > sqlMapConfig.xml   
+==>
+<typeAlias alias = "feedVO" type="feed.vo.FeedVO"/> 설정
+typeAlias 의 앞 글자는 소문자로 시작하자. type 은 VO 위치
+
+<sqlMap resource="mapper/feed.xml"/>
+sqlMap mapper 에 들어갈 xml 경로 지정
+
+res > mapper > feed.xml
+==>
+<!DOCTYPE sqlMap
+	PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
+	"http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+sqlMap의 namespace = "feed" 최대한 이름 통일시키기
+
+불러오는 값이니까 select
+
+<select id = "getFeed" resultClass ="feedVO" parameterClass="String">
+	
+	select a.feed_no as feedno, a.user_id as id, 
+			nvl(b.user_pic,'default.png') as profile, 
+			nvl(a.feed_pic,'default.png') as feedpic,
+			b.user_nickname as nickname, 
+			c.class_num ||' - '|| c.class_room as classname,
+        (select count(*) 
+         from likes 
+         where user_id = #user_id#
+            and feed_no = a.feed_no) as islike,
+            (select count(*)
+                from likes 
+                where feed_no = a.feed_no) as countlike,
+                (select count(*)
+                   from blame
+                   where feed_no = a.feed_no) as reportcount,   
+                     (select count(*)
+                        from blame
+                        where feed_no = a.feed_no
+                          and user_id = #user_id#) as isreport
+                   
+    from feed a, users b, class c  
+    where a.user_id = b.user_id 
+      and b.class_id = c.class_id   
+      
+    order by a.feed_no desc
+	
+	
+	
+	</select>
+	
+
+
+
+4. dao  (main 에서  dao test)
+==> 
+IFeedDao 먼저 생성 후 Impl 생성 
+
+Impl은 
+	
+	// SqlMapClient 받아오기 
+	private SqlMapClient client;
+	
+	// IFeedDao 받아오기
+	private static IFeedDao dao;
+	
+//	1. SqlMapClient객체 얻기
+//	생성자를 생성한 후 객체를 얻어온다.
+	private FeedDaoImpl() {
+		client = SqlMapClientFactory.getClient();
+		
+	}
+//	2.service에서 사용될 자신의 객체를 생성하기
+//	2-1.자신의 객체를 리턴하는 getDao()메서드 정의
+	public static IFeedDao getDao() {
+		if(dao == null) dao = new FeedDaoImpl();
+		return dao;
+		
+	}
+
+	
+	
+	@Override
+	public List<FeedVO> getFeed(String user_id) throws SQLException {
+		// TODO Auto-generated method stub
+		return (List<FeedVO>)client.queryForList("feed.getFeed",user_id);
+	}
+
+}
+
+4-1. (main 에서  dao test)
+	public static void main(String[] args) {
+
+		// dao 받아오기
+		IFeedDao dao = FeedDaoImpl.getDao();
+
+		// service 받아오기 - service test 용 
+		IFeedService service = FeedServiceImpl.getService();
+
+		String user_id = "psh40963@naver.com";  // DB 에 저장되어있는 user_id 값을 지정해준다.
+
+
+		List<FeedVO> list = dao.getFeed(user_id);
+		for(FeedVO vo : list) {
+			System.out.println();
+			System.out.println(vo.getFeedno());
+			System.out.println(vo.getNickname());		// eclipse의 console에 나오도록 확인.
+								// 쿼리문을 확인하는 작업이다.
+
+		}
+
+
+	}
+	
+
+5. service 
+==>
+IFeedDao 에 있는 것 복사 붙여넣기 . throws SQLException; 은 필요 없으니 삭제해준다.
+
+/////////////////////////////////////////////////////////////
+6~7 을 하나의 틀로 생각. 1~5를 먼저 생성해도 되고, 6~7 를 먼저 생성해도 된다. 이 후에 servlet 를 진행 해야 함.
+
+6. feedtest.html
+==>
+테스트를 해볼 html 을 생성 원하는 function 이 실행 되는지 확인한다.
+script 를 작성할것이기 때문에 script src 를 가져온다.
+<script src="../js/jquery-3.5.1.min.js"></script>
+
+style 적용 아래에
+script 에 실행할 function 지정 
+
+==>
+function 생성
+ 
+
+
+
+7. ajax
+
+
