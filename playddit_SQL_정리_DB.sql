@@ -1247,7 +1247,3 @@ ALTER TABLE CLASS_MSG
 		);     
         
         
-        
-        
-        
- 
