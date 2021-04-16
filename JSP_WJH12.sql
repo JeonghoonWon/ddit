@@ -7,6 +7,7 @@ select mem_id, mem_pass, mem_name
 from member
 where mem_id = 'a001' and mem_pass = 'asdfasdf';
 
+
 --private String mem_id;
 select 'private'||column_name
 from cols
@@ -1138,4 +1139,235 @@ select a.*
 --    WHERE ROWNUM =1; 
 
 
- 
+ ---------------------------------------------------
+ CREATE TABLE NOTICE (
+BO_NO	NUMBER(6),
+BO_TITLE	VARCHAR2(100 CHAR) NOT NULL,
+BO_CONTENT CLOB,
+BO_DATE	DATE DEFAULT SYSDATE,
+BO_HIT	NUMBER(4) DEFAULT 0,
+BO_REC	NUMBER(4) DEFAULT 0,
+CONSTRAINT PK_NOTICE PRIMARY KEY(BO_NO)
+);
+
+CREATE TABLE BOARD(
+BO_NO	NUMBER(6),
+BO_TITLE	VARCHAR2(100 CHAR) NOT NULL,
+BO_WRITER VARCHAR2(20 CHAR) NOT NULL,
+BO_PASS VARCHAR2(200 CHAR) NOT NULL,
+BO_CONTENT CLOB,
+BO_DATE	DATE DEFAULT SYSDATE,
+BO_HIT	NUMBER(4) DEFAULT 0,
+BO_REC	NUMBER(4) DEFAULT 0,
+BO_REP	NUMBER(4) DEFAULT 0,
+BO_SEC	CHAR(1) DEFAULT 'N', --'Y' / 'N'
+BO_PARENT NUMBER(6) ,
+CONSTRAINT PK_BOARD PRIMARY KEY(BO_NO),
+CONSTRAINT FK_BOARD_BOARD FOREIGN KEY (BO_PARENT)
+    REFERENCES BOARD(BO_NO)
+);
+
+CREATE TABLE ATTATCH (
+BO_NO NUMBER(6),
+ATT_NO NUMBER(4),
+ATT_FILENAME VARCHAR2(150 CHAR) NOT NULL,
+ATT_SAVENAME VARCHAR2(150 CHAR) NOT NULL,
+ATT_SIZE NUMBER(10) NOT NULL,
+ATT_CONTENTTYPE VARCHAR2(100 CHAR),
+ATT_DOWNCOUNT NUMBER(4) DEFAULT 0,
+CONSTRAINT PK_ATTATCH PRIMARY KEY(ATT_NO),
+CONSTRAINT FK_BOARD_ATTATCH FOREIGN KEY(BO_NO)
+    REFERENCES BOARD(BO_NO)
+);
+CREATE TABLE REPLY2 (
+BO_NO NUMBER(6),
+REP_NO NUMBER(6),
+REP_WRITER VARCHAR2(20 CHAR) NOT NULL,
+REP_PASS VARCHAR2(200 CHAR) NOT NULL,
+REP_CONTENT VARCHAR2(400 CHAR),
+REP_DATE DATE DEFAULT SYSDATE,
+CONSTRAINT PK_REPLY2 PRIMARY KEY (REP_NO),
+CONSTRAINT FK_BOARD_REPLY2 FOREIGN KEY(BO_NO)
+    REFERENCES BOARD(BO_NO)
+);
+
+------------------------------------------
+DROP TABLE NOTICE_COMMENT CASCADE CONSTRAINTS;
+DROP TABLE NOTICE CASCADE CONSTRAINTS;
+---------------------------------------------------------
+CREATE SEQUENCE BO_SEQ START WITH 1 INCREMENT BY 1;
+INSERT INTO notice (
+    bo_no, bo_title, bo_content,
+    bo_date, bo_hit, bo_rec
+) 
+SELECT BO_SEQ.NEXTVAL, '더미 공지 게시글 제목' || ROWNUM,  
+      '더미 공지 게시글 의 내용 <br /> 임의로 작성한 내용',
+    SYSDATE - (500-ROWNUM), 
+    TRUNC(DBMS_RANDOM.VALUE()*1000)
+    , TRUNC(DBMS_RANDOM.VALUE()*1000)
+  FROM DUAL
+CONNECT BY LEVEL < 500;
+
+
+SELECT BO_NO, BO_DATE
+FROM NOTICE
+ORDER BY BO_NO DESC;
+
+SELECT ROWNUM, SYSDATE -(500 - ROWNUM)  -- 과거가 ROWNUM 1로 적용
+FROM DUAL
+
+
+SELECT TRUNC( DBMS_RANDOM.VALUE() * 1000);
+
+---------------------------------------------------------
+INSERT INTO board (
+    bo_no,    bo_title,    bo_writer,
+    bo_pass,    bo_content,    bo_date,
+    bo_hit,    bo_rec,    bo_rep,
+    bo_sec,    bo_parent
+) 
+SELECT BO_SEQ.NEXTVAL, MEM_NAME||'님이 작성한 글', MEM_NAME,
+MEM_PASS, MEM_NAME||'작성한 글의 내용<br/> 임의로 작성한 내용',
+SYSDATE -(370 - ROWNUM),
+TRUNC(DBMS_RANDOM.VALUE()*1000), -- HIT
+TRUNC(DBMS_RANDOM.VALUE()*1000), -- 추천
+0, 'N', NULL
+FROM MEMBER,
+(
+SELECT ROWNUM RNUM
+FROM DUAL
+CONNECT BY LEVEL < 11);
+
+ROLLBACK;
+
+SELECT BO_NO, BO_DATE
+FROM BOARD;
+
+---------------------------------------------------------
+CREATE OR REPLACE VIEW BOARDVIEW AS
+SELECT *
+FROM(
+    SELECT DECODE(TRUNC(ROWNUM/4),0,1,999) BO_SORT, NOTICE.*
+    FROM(
+        SELECT   'NOTICE' BO_TYPE, 
+        bo_no,    bo_title,    '관리자' BO_WRITER,
+        NULL BO_PASS,    bo_content,    bo_date,
+        bo_hit,    bo_rec,    NULL BO_REP,
+        NULL BO_SEQ,    NULL BO_PARENT
+        FROM NOTICE
+        ORDER BY BO_NO DESC
+    ) NOTICE
+UNION ALL
+SELECT 
+    2 BO_SORT,  'BOARD' BO_TYPE,
+    bo_no,    bo_title,    bo_writer,
+    bo_pass,    bo_content,    bo_date,
+    bo_hit,    bo_rec,    bo_rep,
+    bo_sec,    bo_parent
+FROM BOARD
+);
+
+
+
+SELECT DECODE(TRUNC(ROWNUM/4),0,1,999) BO_SORT, NOTICE.*
+FROM(
+        SELECT BO_NO, BO_DATE, BO_TITLE, 'NOTICE' BO_TYPE
+        FROM NOTICE
+        ORDER BY BO_NO DESC
+) NOTICE
+ORDER BY BO_SORT ASC, BO_NO DESC;
+
+--------------------------------------------
+SELECT *
+FROM BOARDVIEW
+ORDER BY BO_SORT ASC,BO_DATE DESC;
+
+select 'private '||
+    DECODE(DATA_TYPE,'NUMBER','Integer ','String ')||
+    LOWER(COLUMN_NAME)||';'
+from cols
+where table_name = 'BOARDVIEW';
+
+
+
+-------------------------------------------------------
+SELECT *
+FROM BOARD;
+
+	SELECT B.*
+		FROM (
+			SELECT A.*, ROWNUM RNUM
+			FROM (
+				SELECT
+     BO_TYPE, BO_NO, BO_TITLE, BO_WRITER, BO_CONTENT, BO_DATE, BO_HIT, BO_REC, BO_REP
+    
+				FROM BOARDVIEW
+				ORDER BY BO_DATE
+			)A	 
+		)B	
+		WHERE RNUM BETWEEN 1 AND 11;
+        
+        
+        
+        SELECT COUNT(*)
+        FROM BOARDVIEW;
+        
+        
+        DESC BOARDVIEW;
+        
+        
+        
+        
+        
+------------------------------------------------------------------------------------------------        
+        
+        SELECT B.*
+		FROM (
+			SELECT ROWNUM -3 RNUM, A.*
+			FROM (
+				SELECT
+    			BO_SORT, BO_TYPE, BO_NO, 
+    			BO_TITLE, BO_WRITER, 
+    			BO_HIT, BO_REC, 
+    			BO_REP,
+    			TO_CHAR(BO_DATE, 'YYYY-MM-DD') BO_DATE
+				FROM BOARDVIEW
+				
+				ORDER BY BO_SORT ASC, BO_DATE DESC
+			)A	 
+		)B	
+
+		WHERE BO_SORT = 1 OR RNUM BETWEEN 1 AND 11;
+        
+------------------------------------------------------------------------------------------------ 
+
+alter table member
+add (MEM_IMG BLOB);
+
+
+------------------------------------------------------------------------------------------------
+
+select mem_pass
+from member;
+
+
+ALTER TABLE MEMBER
+MODIFY MEM_PASS VARCHAR2(150);
+DESC MEMBER;
+
+UPDATE MEMBER
+SET MEM_PASS = 'SknbGf+Gu+UwwxddYCnEA/VQEEQFwQfzyqJon3AzmlXS6txg7Wd6I5SkAsZqtIsRNAQ81NH2+l9XITTvSi3k/A==';
+
+------------------------------------------------------------------------------------------------
+ -- selectBoard --
+        SELECT
+            BO_SORT, BO_TYPE, BO_NO, 
+    		BO_TITLE, BO_WRITER,
+    		BO_HIT, BO_REC, 
+    		BO_REP,
+    		TO_CHAR(BO_DATE, 'YYYY-MM-DD') BO_DATE
+         FROM BOARDVIEW
+        WHERE BO_NO = 1000;
+
+        
+DESC BOARDVIEW;
