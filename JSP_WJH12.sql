@@ -1113,7 +1113,7 @@ where rownum = 1;
 -- where 절에서 max 를 가져오는법
 
 
-select prod_id, prod_name,lprod_nm,prod_mileage, buyer_name,
+select prod_id, prod_name,lprod_nm, prod_mileage, buyer_name,
         nvl(sum(cart_qty), 0) as sales
 from prod
     left outer join cart on (prod_id = cart_prod)
@@ -1371,3 +1371,34 @@ SET MEM_PASS = 'SknbGf+Gu+UwwxddYCnEA/VQEEQFwQfzyqJon3AzmlXS6txg7Wd6I5SkAsZqtIsR
 
         
 DESC BOARDVIEW;
+
+
+-------------------------------------------------------------------------------------------------
+--04/17
+-- 더미 데이터 생성
+INSERT INTO ALBA (
+    AL_ID,    AL_NAME,    AL_AGE, AL_ZIP, AL_ADD1, 
+    AL_ADD2,    AL_HP,    AL_SPEC,   AL_DESC,   
+    GR_CODE,    AL_CAREER,   AL_GEN,    AL_MAIL
+)
+SELECT 'A'||LPAD(ROWNUM, 7, '0') , MEM_NAME, 
+    23,
+    MEM_ZIP, MEM_ADD1, MEM_ADD2, 
+    NVL(MEM_HP, '000-000-0000'), '스펙', '자기소개', 'G003', MEM_JOB, 
+    DECODE(SUBSTR(MEM_REGNO2, 1, 1), '1', 'M', 'F'),
+    MEM_MAIL
+FROM MEMBER;
+
+INSERT INTO LIC_ALBA (AL_ID, LIC_CODE, LIC_DATE)
+SELECT AL_ID, 'L001', SYSDATE
+FROM ALBA;
+           
+INSERT INTO LIC_ALBA(AL_ID, LIC_CODE)
+SELECT AL_ID, 'L004'
+FROM (SELECT ROWNUM RNUM, AL_ID FROM ALBA)
+WHERE MOD(RNUM,2) = 0;
+
+commit;
+
+
+
