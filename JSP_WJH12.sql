@@ -1401,4 +1401,178 @@ WHERE MOD(RNUM,2) = 0;
 commit;
 
 
+----------------------------------------------------------------------------
 
+-- 직속상관 찾기 
+
+SELECT EMPNO, LEVEL, LPAD(' ', 2*level-1)|| ENAME, MGR, SAL
+FROM EMP
+START WITH MGR IS NULL -- 처음 시작 MGR 이 NULL 
+CONNECT BY PRIOR EMPNO = MGR -- EMPNO 와 MGR 을 연결 하는데 EMPNO 에 PRIOR 를 붙여서 앞으로 
+ORDER SIBLINGS BY SAL ASC;
+
+
+
+ SELECT 
+    BO_SORT, BO_TYPE, BO_NO
+      , LEVEL
+      , LPAD('   RE:', 12*(level-1), '*nbsp;')||DECODE(BO_SEC, 'Y', '비밀글임', BO_TITLE) BO_TITLE 
+      -- level 에 붙는 숫자만 적용하면 
+      , BO_WRITER
+      , BO_HIT, BO_REC
+      , TO_CHAR(BO_DATE, 'YYYY-MM-DD HH:MI') BO_DATE
+      , BO_SEC
+FROM BOARDVIEW
+-- 조건절을 넣더라도 위치가 중요.
+WHERE bo_type = 'BOARD'
+START WITH BO_PARENT IS NULL
+CONNECT BY PRIOR BO_NO = BO_PARENT
+
+ORDER SIBLINGS BY BO_SORT ASC, BO_NO DESC;
+
+
+
+
+-----------------------------------------------------------------------------------
+--04/21
+
+UPDATE BOARD
+SET
+BO_TITLE = 'TEST'
+WHERE BO_NO = 1344;
+
+ROLLBACK;
+
+    
+    delete from board
+    where
+    bo_no = 1344  and bo_pass= 'SknbGf+Gu+UwwxddYCnEA/VQEEQFwQfzyqJon3AzmlXS6txg7Wd6I5SkAsZqtIsRNAQ81NH2+l9XITTvSi3k/A==';
+    
+
+update board
+set
+bo_title = '삭제된 게시글 입니다.' , bo_content = ' 삭제된 게시글 입니다.'
+where bo_no = 1343 and bo_pass= 'SknbGf+Gu+UwwxddYCnEA/VQEEQFwQfzyqJon3AzmlXS6txg7Wd6I5SkAsZqtIsRNAQ81NH2+l9XITTvSi3k/A==';
+
+
+
+SELECT EMPNO, ENAME, MGR
+FROM EMP;
+
+SELECT -- SELECT 안에 SELECT 이 들어가면 스칼라 쿼리
+FROM  -- FROM 안에 SELECT 이 들어가면 인라인뷰
+WHERE -- WHERE 안에 SELECT 이 들어가면 서브쿼리
+
+--백터 데이터 : 방향과 사이즈를 가지고있다. SELECT 절에선 조회 될 수 없다.
+-- 스칼라 쿼리  : 쿼리의 결과가  레코드가 하나, 조회되는 값도 하나 
+
+SELECT EMPNO, ENAME, MGR,(
+    SELECT COUNT(*)
+    FROM EMP B
+    WHERE B.MGR = A.EMPNO
+) CNT
+FROM EMP A;
+
+MERGE INTO A
+USING B
+ON()
+WHEN MATCHED THEN -- 조건에 맞는지 확인 MATCHED -- 그 조건이 맞으면 , THEN -- 조건이 맞은경우 실행하고 싶은 쿼리문
+
+WHEN UNMATCHED THEN -- 조건이 맞지않은 경우 
+
+MERGE INTO EMP C -- 대상 테이블
+USING (
+    SELECT EMPNO,(
+        SELECT COUNT(*)
+        FROM EMP B
+        WHERE B.MGR = A.EMPNO
+    ) CNT
+    FROM EMP A -- 자식의 갯수에 따라 달라짐.
+) D
+ON(C.EMPNO = '7369' AND C.EMPNO = D.EMPNO) -- C와D를 JOIN 할 수 있는 조건 완성
+WHEN MATCHED THEN
+UPDATE SET ENAME = '수정'
+DELETE WHERE D.CNT = 0;
+
+ROLLBACK;
+
+
+
+SELECT EMPNO, MGR
+FROM EMP;
+WHERE
+
+
+-- 개시글 글번호와 자식 갯수를 샐 수 있는 쿼리문
+SELECT BO_NO, (
+    SELECT COUNT(*) -1 -- COUNT(*) 
+    FROM BOARD B
+    START WITH BO_NO = A.BO_NO
+    CONNECT BY PRIOR BO_NO = BO_PARENT
+) CNT
+FROM BOARD A
+ORDER BY BO_NO DESC;
+
+
+
+MERGE INTO BOARD C
+USING ( -- 여기 들어가는 쿼리문은 뷰 / 테이블이 아니다.
+        SELECT BO_NO, (
+            SELECT COUNT(*) -1 -- COUNT(*) 
+            FROM BOARD B
+            START WITH BO_NO = A.BO_NO
+            CONNECT BY PRIOR BO_NO = BO_PARENT
+        ) CNT
+        FROM BOARD A
+) D
+ON (C.BO_NO = 1327 AND C.BO_NO = D.BO_NO)  -- 글 번호를 주어서 하나의 글만 병합 시켜본다.
+WHEN MATCHED THEN
+    UPDATE SET BO_TITLE = '삭제된 글의 제목'
+                , BO_CONTENT = '삭제된 글의 내용'
+    DELETE WHERE D.CNT = 0;
+    
+    SELECT BO_TITLE
+    FORM BOARD
+    
+    
+    ROLLBACK;
+
+
+ALTER TABLE BOARD
+ADD(
+    BO_DELETE CHAR(1) DEFAULT 'N'
+);
+
+
+SELECT BO_DELETE
+FROM BOARD;
+
+
+rollback;
+
+CREATE OR REPLACE VIEW BOARDVIEW AS
+SELECT *
+FROM(
+    SELECT DECODE(TRUNC(ROWNUM/4),0,1,999) BO_SORT, NOTICE.*
+    FROM(
+        SELECT   'NOTICE' BO_TYPE, 
+        bo_no,    bo_title,    '관리자' BO_WRITER,
+        NULL BO_PASS,    bo_content,    bo_date,
+        bo_hit,    bo_rec,    NULL BO_REP,
+        NULL BO_SEQ,    NULL BO_PARENT,
+        null bo_delete
+        FROM NOTICE
+        ORDER BY BO_NO DESC
+    ) NOTICE
+UNION ALL
+SELECT 
+    2 BO_SORT,  'BOARD' BO_TYPE,
+    bo_no,    bo_title,    bo_writer,
+    bo_pass,    bo_content,    bo_date,
+    bo_hit,    bo_rec,    bo_rep,
+    bo_sec,    bo_parent, bo_delete
+FROM BOARD
+);
+
+select *
+from boardview;
