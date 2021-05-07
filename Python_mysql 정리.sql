@@ -26,3 +26,4 @@ WHERE   TABLE_NAME = 'stock_sync_0121'
 AND COLUMN_NAME != 'in_time'
 
 
+columns_privcolumns_privlunch

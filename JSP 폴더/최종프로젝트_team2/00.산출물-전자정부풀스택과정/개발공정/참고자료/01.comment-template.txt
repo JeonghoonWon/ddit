@@ -1,0 +1,52 @@
+***. 모든 소스에는 작성자와 작성 이유 및 용도에 관한 주석을 작성할 것.
+   : 제공된 comment-template.txt 파일을 참고하여, window->preferences 에서 각 소스별 템플릿에 미리 등록하여 사용.
+1. javadoc comment for java class
+/**
+ * @author 작성자명
+ * @since ${date}
+ * @version 1.0
+ * @see javax.servlet.http.HttpServlet
+ * <pre>
+ * [[개정이력(Modification Information)]]
+ * 수정일                          수정자               수정내용
+ * --------     --------    ----------------------
+ * ${date}      작성자명       최초작성
+ * Copyright (c) ${year} by DDIT All right reserved
+ * </pre>
+ */
+
+
+2. comment for xml and html
+
+<!--  [[개정이력(Modification Information)]]       -->
+<!--  수정일        수정자     수정내용               -->
+<!--  ==========   ======    ==============        -->
+<!--  ${date}}     작성자명     최초작성               -->
+<!--  Copyright (c) ${year} by DDIT All right reserved -->
+
+3. comment for jsp
+<%--
+* [[개정이력(Modification Information)]]
+* 수정일                 수정자      수정내용
+* ----------  ---------  -----------------
+* ${date}      작성자명      최초작성
+* Copyright (c) ${year} by DDIT All right reserved
+ --%>
+
+4. comment for javascript and css
+/**
+ * <pre>
+ * 
+ * </pre>
+ * @author 작성자명
+ * @since ${date}
+ * @version 1.0
+ * <pre>
+ * [[개정이력(Modification Information)]]
+ * 수정일        수정자       수정내용
+ * --------     --------    ----------------------
+ * ${date}      작성자명       최초작성
+ * Copyright (c) ${year} by DDIT All right reserved
+ * </pre>
+ */ 
+

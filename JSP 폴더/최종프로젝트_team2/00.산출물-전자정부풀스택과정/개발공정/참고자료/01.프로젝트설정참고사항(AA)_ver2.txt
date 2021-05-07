@@ -1,0 +1,19 @@
+*** 본 텍스트와 함께 제공되는 "프로젝트 설정 참고.pdf" 파일을 참고할 것.
+
+1. 각 프로젝트의 디자인 테마에 맞춰서 에러 페이지 재작성(404, 400, 403, 500  등)
+
+2. 모든 소스에는 작성자와 작성일, 작성 이유 및 용도에 관한 주석을 작성할 것.
+   : 제공된 comment-template.txt 파일을 참고하여, window->preferences 에서 각 소스별 템플릿에 미리 등록하여 사용.
+
+3. 이클립스 실행 혹은 프로젝트 빌드시 시스템 부하를 줄이기 위해, 가능하면 클라이언트 라이브러리들은 validation 대상에서 제외할 것.
+project properties -> javascript -> include path -> source tab -> exclude edit -> exclude pattern edit
+**/*.js 혹은 **/webapp/resources/api/*.js 등으로 추가함.
+
+4. 트랜잭션 관리 대상이 되는 서비스 로직 메소드에 @Transactional  어노테이션을 사용해서 트랜잭션 관리가 되도록 하기 위해서.
+  루트 컨테이너에 tx:annotation-driven  설정을 추가할 것.
+
+5. 상/하위 컨테이너에 각기 다른 레이어의 객체들을 등록하기 위해 필터링 설정.
+
+6. Model 클래스(VO, DTO)등의 관리 편의를 위해 lombok 라이브러리 적용.
+
+7. 쿼리 디버깅 편의를 위해 log4jdbc 활용.
